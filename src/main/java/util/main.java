@@ -17,7 +17,7 @@ public class main {
 		Kundeservice ks = new Kundeservice();
 		
 		DBverbindung.dbconnect();
-		ArrayList<Kundedomain> allKunden = ks.findKundenByName(" ");
+		ArrayList<Kundedomain> allKunden = ks.findKundenByName("t");
 		ArrayList<Kundedomain> allKunden1 = ks.getAllKunden();
 		DBverbindung.dbdisconect();
 		
