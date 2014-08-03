@@ -75,7 +75,7 @@ public class KundeUI {
 		});
 
 		
-		JLabel lblNewLabel = new JLabel("master");
+		JLabel lblNewLabel = new JLabel("masterrr");
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
