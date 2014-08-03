@@ -87,20 +87,23 @@ public class KundeUI {
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(83)
-					.addComponent(btnNewButton_1)
-					.addGap(76)
-					.addComponent(lblNewLabel)
-					.addContainerGap(140, Short.MAX_VALUE))
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(248)
+							.addComponent(lblNewLabel))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(57)
+							.addComponent(btnNewButton_1)))
+					.addContainerGap(153, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addGap(82)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(btnNewButton_1)
-						.addComponent(lblNewLabel))
-					.addContainerGap(157, Short.MAX_VALUE))
+					.addComponent(lblNewLabel)
+					.addGap(46)
+					.addComponent(btnNewButton_1)
+					.addContainerGap(93, Short.MAX_VALUE))
 		);
 		frame.getContentPane().setLayout(groupLayout);
 	}
