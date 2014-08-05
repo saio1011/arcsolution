@@ -17,16 +17,23 @@ public class main {
 		Kundeservice ks = new Kundeservice();
 		
 		DBverbindung.dbconnect();
-		ArrayList<Kundedomain> allKunden = ks.findKundenByName("t");
+//		ArrayList<Kundedomain> allKunden = ks.findKundenByName("t");
 		ArrayList<Kundedomain> allKunden1 = ks.getAllKunden();
+		
+		
+		Kundedomain kundeNou = new Kundedomain("test6", "ctr6", "actaditional6", "determinat");
+		Kundedomain tmp = ks.createKunde(kundeNou);
+		
 		DBverbindung.dbdisconect();
 		
-		for (int i = 0 ; i < allKunden.size(); i++ ) {
-			System.out.println(allKunden.get(i).toString());
-		}
+//		for (int i = 0 ; i < allKunden.size(); i++ ) {
+//			System.out.println(allKunden.get(i).toString());
+//		}
 		for (int i = 0 ; i < allKunden1.size(); i++ ) {
 			System.out.println(allKunden1.get(i).toString());
 		}
+		
+//		System.out.println("create Kunde "+ tmp.toString());
 
 	}
 

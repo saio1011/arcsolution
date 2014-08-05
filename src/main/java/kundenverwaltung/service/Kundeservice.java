@@ -65,4 +65,22 @@ public class Kundeservice {
 		return kunden;
 	}
 	
+	public Kundedomain createKunde(Kundedomain kunde){
+		Statement st = null;
+//		DBverbindung.dbconnect();
+		try{
+			st = DBverbindung.getConn().createStatement();
+			st.executeUpdate("INSERT INTO kunde (`Name`, `Kontraktnr`, `Actaditional`, `Valabilitatectr`) VALUES ('"+kunde.getName().toString()
+					+"', '"+ kunde.getKontraktNr().toString()+"', '" + kunde.getActaditional().toString() + "', '"+kunde.getValabilitateCrt().toString()+"')");
+			
+
+		}catch (Exception ex){
+			System.out.println(ex.getMessage());
+			System.out.println(st.toString());
+		}
+		
+//		DBverbindung.dbdisconect();
+		return kunde;
+	}
+	
 }

@@ -1,16 +1,15 @@
 package kundenverwaltung.test;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
-import javax.swing.JButton;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
-public class testUI {
+public class testUI extends JFrame {
 
-	private JFrame frame;
+	private JPanel contentPane;
 
 	/**
 	 * Launch the application.
@@ -19,8 +18,8 @@ public class testUI {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					testUI window = new testUI();
-					window.frame.setVisible(true);
+					testUI frame = new testUI();
+					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -29,41 +28,15 @@ public class testUI {
 	}
 
 	/**
-	 * Create the application.
+	 * Create the frame.
 	 */
 	public testUI() {
-		initialize();
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		setBounds(100, 100, 450, 300);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JButton btnNewButton = new JButton("New button");
-		
-		JLabel lblSlave = new JLabel("slave");
-		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
-		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(69)
-					.addComponent(btnNewButton)
-					.addGap(78)
-					.addComponent(lblSlave)
-					.addContainerGap(152, Short.MAX_VALUE))
-		);
-		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(123)
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addComponent(lblSlave)
-						.addComponent(btnNewButton)))
-		);
-		frame.getContentPane().setLayout(groupLayout);
-	}
 }
