@@ -1,4 +1,5 @@
 package kundenverwaltung.ui;
+import util.MainUI;
 
 import java.awt.EventQueue;
 
@@ -11,9 +12,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+
 import javax.swing.JTextField;
 
 import java.awt.event.ActionListener;
@@ -29,10 +32,16 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class KundeUI {
+import net.miginfocom.swing.MigLayout;
+
+public class KundeUI extends JPanel {
 
 	private JFrame frame;
 	private JTextField textField;
+	private JTextField kundeUIDenumireClientTxtFld;
+	private JTextField kundeUINrCtrTxtFld;
+	private JTextField kundeUIActeAditionaleTxtFld;
+	private JTextField kundeUIValabilitateCtrTxtFld;
 
 	/**
 	 * Launch the application.
@@ -62,43 +71,47 @@ public class KundeUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(100, 100, 601, 439);
+		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		
-				
-		JButton btnNewButton_1 = new JButton("New button");
-		btnNewButton_1.addActionListener(new ActionListener() {
+		JLabel kundeUIIntroduceClientLbl = new JLabel("Introduce Client Nou");
+		
+		JLabel kundeUIDenumireClientLbl = new JLabel("Denumire Client");
+		
+		JLabel kundeUINrContractLbl = new JLabel("Nr. Contract");
+		
+		JLabel kundeUIActeAditionaleLbl = new JLabel("Acte Aditionale");
+		
+		JLabel kundeUIValabilitateCtrLbl = new JLabel("Valabilitate Contract");
+		frame.getContentPane().setLayout(new MigLayout("", "[99px][97px][49.00][168.00,grow]", "[14px][68.00][][14.00px][14px][14px][14px][][]"));
+		frame.getContentPane().add(kundeUIIntroduceClientLbl, "cell 0 0,alignx left,aligny top");
+		frame.getContentPane().add(kundeUIDenumireClientLbl, "cell 1 3,alignx left,aligny top");
+		
+		kundeUIDenumireClientTxtFld = new JTextField();
+		frame.getContentPane().add(kundeUIDenumireClientTxtFld, "cell 3 3,growx");
+		kundeUIDenumireClientTxtFld.setColumns(10);
+		frame.getContentPane().add(kundeUINrContractLbl, "cell 1 4,alignx left,aligny top");
+		
+		kundeUINrCtrTxtFld = new JTextField();
+		frame.getContentPane().add(kundeUINrCtrTxtFld, "cell 3 4,growx");
+		kundeUINrCtrTxtFld.setColumns(10);
+		frame.getContentPane().add(kundeUIActeAditionaleLbl, "cell 1 5,alignx left,aligny top");
+		
+		kundeUIActeAditionaleTxtFld = new JTextField();
+		frame.getContentPane().add(kundeUIActeAditionaleTxtFld, "cell 3 5,growx");
+		kundeUIActeAditionaleTxtFld.setColumns(10);
+		frame.getContentPane().add(kundeUIValabilitateCtrLbl, "cell 1 6,alignx left,aligny top");
+		
+		kundeUIValabilitateCtrTxtFld = new JTextField();
+		kundeUIValabilitateCtrTxtFld.setText("");
+		frame.getContentPane().add(kundeUIValabilitateCtrTxtFld, "cell 3 6,growx");
+		kundeUIValabilitateCtrTxtFld.setColumns(10);
+		
+		JButton kundeUISaveKundeBtn = new JButton("Salveaza Client");
+		kundeUISaveKundeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				testUI testui = new testUI();
-				testui.main(new String[0]);
 			}
 		});
-
-		
-		JLabel lblNewLabel = new JLabel("master");
-		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
-		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(248)
-							.addComponent(lblNewLabel))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(57)
-							.addComponent(btnNewButton_1)))
-					.addContainerGap(153, Short.MAX_VALUE))
-		);
-		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(82)
-					.addComponent(lblNewLabel)
-					.addGap(46)
-					.addComponent(btnNewButton_1)
-					.addContainerGap(93, Short.MAX_VALUE))
-		);
-		frame.getContentPane().setLayout(groupLayout);
+		frame.getContentPane().add(kundeUISaveKundeBtn, "cell 3 8");
 	}
-
 }

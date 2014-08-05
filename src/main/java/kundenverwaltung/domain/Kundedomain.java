@@ -16,6 +16,14 @@ public class Kundedomain {
 		Actaditional = actaditional;
 		this.valabilitateCtr = valabilitateCrt;
 	}
+	public Kundedomain(String name, String kontraktNr, String actaditional,
+			String valabilitateCrt) {
+		super();
+		Name = name;
+		KontraktNr = kontraktNr;
+		Actaditional = actaditional;
+		this.valabilitateCtr = valabilitateCrt;
+	}
 
 	public int getID() {
 		return ID;
