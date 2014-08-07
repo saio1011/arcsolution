@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -48,6 +49,10 @@ public class MainUI extends JFrame {
 	private JButton btnDebitorenVerwaltung;
 	private JPanel debitorenMainUI;
 	private JLabel lblTitleDebMainUI;
+	private JButton btnEditeazaClient;
+	private JButton btnCancelDebMainUI;
+	
+	private Kundedomain selectedKunde;
 
 	/**
 	 * Launch the application.
@@ -82,7 +87,9 @@ public class MainUI extends JFrame {
 		frame.setBounds(100, 100, 900, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new CardLayout(0, 0));
-		
+		frame.setTitle("Arc Solution");
+	
+//mainUI
 		mainUI = new JPanel();
 		frame.getContentPane().add(mainUI, "name_27322271565082");
 		mainUI.setLayout(null);
@@ -91,6 +98,7 @@ public class MainUI extends JFrame {
 		lblTitle.setBounds(21, 21, 135, 14);
 		mainUI.add(lblTitle);
 		
+		//Search Customer
 		btnCautaClient = new JButton("Cauta Client");
 		btnCautaClient.setBounds(206, 120, 135, 23);
 		btnCautaClient.addActionListener(new ActionListener() {
@@ -104,6 +112,7 @@ public class MainUI extends JFrame {
 				//add customers into listOutput
 				listKundenInDB.setVisible(true);
 				btnDebitorenVerwaltung.setVisible(true);
+				btnEditeazaClient.setVisible(true);
 				scrollPane.setVisible(true);
 				lblClientiInDb.setVisible(true);
 				listKundenInDB.setListData(allKunden.toArray());
@@ -111,6 +120,7 @@ public class MainUI extends JFrame {
 		});
 		mainUI.add(btnCautaClient);
 		
+		//Create Customer
 		btnCreazaClient = new JButton("Creaza Client");
 		btnCreazaClient.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -127,6 +137,7 @@ public class MainUI extends JFrame {
 		mainUI.add(scrollPane);
 		
 		listKundenInDB = new JList();
+		listKundenInDB.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		scrollPane.setViewportView(listKundenInDB);
 		
 		lblClientiInDb = new JLabel("Clienti in DB");
@@ -139,25 +150,44 @@ public class MainUI extends JFrame {
 		mainUI.add(txtFldCautaClient);
 		txtFldCautaClient.setColumns(10);
 		
-		btnDebitorenVerwaltung = new JButton("Debitorenverwaltung");
+		//Debitorenverwaltung
+		btnDebitorenVerwaltung = new JButton("Administreaza Debitori");
 		btnDebitorenVerwaltung.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				//
-				List<Kundedomain> selectedItems = new ArrayList<Kundedomain>();
-				selectedItems = listKundenInDB.getSelectedValuesList();
-				
-				
+				//debitorenMainUI only when one customer selected is
+				//set debitorenMainUI as visible
 				mainUI.setVisible(false);
 				debitorenMainUI.setVisible(true);
 				
-				lblTitleDebMainUI.setText(selectedItems.toString());
+				//list only one customer as title
+				lblTitleDebMainUI.setText(getSelectedCustomer().getName().toString());
 			}
 		});
-		btnDebitorenVerwaltung.setBounds(136, 282, 167, 23);
+		btnDebitorenVerwaltung.setBounds(313, 282, 167, 23);
 		btnDebitorenVerwaltung.setVisible(false);
 		mainUI.add(btnDebitorenVerwaltung);
+		
+		//Edit Customer
+		btnEditeazaClient = new JButton("Editeaza Client");
+		btnEditeazaClient.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				kundeUI.setVisible(true);
+				mainUI.setVisible(false);
 			
+				//Edit and Update selected customer
+				txtFldDenumireClient.setText(getSelectedCustomer().getName().toString());
+				txtFldNrCtr.setText(getSelectedCustomer().getKontraktNr().toString());
+				txtFldActeAditionale.setText(getSelectedCustomer().getActaditional().toString());
+				txtFldValabilitateCtr.setText(getSelectedCustomer().getValabilitateCrt().toString());
+				
+			}
+		});
+		btnEditeazaClient.setBounds(136, 282, 167, 23);
+		btnEditeazaClient.setVisible(false);
+		mainUI.add(btnEditeazaClient);
+
+//kundeUI
 		kundeUI = new JPanel();
 		frame.getContentPane().add(kundeUI, "name_27327655750175");
 		kundeUI.setLayout(null);
@@ -202,19 +232,26 @@ public class MainUI extends JFrame {
 		txtFldValabilitateCtr.setColumns(10);
 		txtFldValabilitateCtr.setBounds(211, 189, 314, 20);
 		kundeUI.add(txtFldValabilitateCtr);
-		
+		 
+		//save Customer
 		btnSalveazaClient = new JButton("Salveaza Client");
 		btnSalveazaClient.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mainUI.setVisible(true);
 				kundeUI.setVisible(false);
 				
-				//save a new customer
+				//TODO Switch funktioniert nicht
+				//save or edit/update a new customer
 				if(!(txtFldDenumireClient.getText().isEmpty() || txtFldNrCtr.getText().isEmpty())){
 					DBverbindung.dbconnect();
-					Kundedomain kundeNou = new Kundedomain(txtFldDenumireClient.getText().toString(), txtFldNrCtr.getText().toString(), 
-							txtFldActeAditionale.getText().toString(), txtFldValabilitateCtr.getText().toString());
-					Kundedomain tmp = ks.createKunde(kundeNou);
+					if(e.getActionCommand().equals("Creaza Client")){
+						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClient.getText().toString(), txtFldNrCtr.getText().toString(), 
+								txtFldActeAditionale.getText().toString(), txtFldValabilitateCtr.getText().toString());
+						Kundedomain tmp = ks.createKunde(kundeNou);
+						System.out.println("Button create pressed");
+					}else if(e.getActionCommand().equals("Editeaza Client")){
+						System.out.println("Button edit pressed");
+					}
 					DBverbindung.dbdisconect();
 				}
 				
@@ -228,6 +265,7 @@ public class MainUI extends JFrame {
 		btnSalveazaClient.setBounds(211, 239, 151, 23);
 		kundeUI.add(btnSalveazaClient);
 		
+		//Cancel
 		btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -244,6 +282,7 @@ public class MainUI extends JFrame {
 		btnCancel.setBounds(374, 239, 151, 23);
 		kundeUI.add(btnCancel);
 		
+//debitorenUI
 		debitorenMainUI = new JPanel();
 		frame.getContentPane().add(debitorenMainUI, "name_79084692757183");
 		debitorenMainUI.setLayout(null);
@@ -252,6 +291,23 @@ public class MainUI extends JFrame {
 		lblTitleDebMainUI.setBounds(10, 11, 842, 14);
 		debitorenMainUI.add(lblTitleDebMainUI);
 		
-		
+		//Cancel
+		btnCancelDebMainUI = new JButton("Cancel");
+		btnCancelDebMainUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainUI.setVisible(true);
+				debitorenMainUI.setVisible(false);
+			}
+		});
+		btnCancelDebMainUI.setBounds(171, 533, 89, 23);
+		debitorenMainUI.add(btnCancelDebMainUI);		
+	}
+	
+//Hilfsmethoden
+	//get selected Customer
+	private Kundedomain getSelectedCustomer(){
+		Object selectedItem = listKundenInDB.getSelectedValue();
+		selectedKunde = (Kundedomain) selectedItem;		
+		return selectedKunde;
 	}
 }

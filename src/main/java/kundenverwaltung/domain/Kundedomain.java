@@ -28,6 +28,9 @@ public class Kundedomain {
 	public int getID() {
 		return ID;
 	}
+	public String getIDString(){
+		return ""+ID;
+	}
 
 	public void setID(int iD) {
 		ID = iD;
