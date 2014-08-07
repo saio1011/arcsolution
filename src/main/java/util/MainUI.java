@@ -4,14 +4,11 @@ import java.awt.EventQueue;
 
 import kundenverwaltung.domain.Kundedomain;
 import kundenverwaltung.service.*;
-import kundenverwaltung.ui.*;
 
 import javax.swing.JFrame;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
-
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
