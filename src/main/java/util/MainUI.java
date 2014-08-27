@@ -5,10 +5,10 @@ import java.awt.EventQueue;
 import kundenverwaltung.domain.Kundedomain;
 import kundenverwaltung.service.*;
 
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
