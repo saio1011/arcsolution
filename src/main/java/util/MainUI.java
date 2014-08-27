@@ -52,8 +52,10 @@ public class MainUI extends JFrame {
 	private JButton btnEditeazaClient;
 	private JButton btnCancelDebMainUI;
 	
+	
 	private Kundedomain selectedKunde;
-
+	private String angeklickteButton;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -126,6 +128,8 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				mainUI.setVisible(false);
 				kundeUI.setVisible(true);
+				
+				angeklickteButton = "btnCreazaClient";
 			}
 		});
 		btnCreazaClient.setBounds(206, 154, 135, 23);
@@ -180,6 +184,8 @@ public class MainUI extends JFrame {
 				txtFldNrCtr.setText(getSelectedCustomer().getKontraktNr().toString());
 				txtFldActeAditionale.setText(getSelectedCustomer().getActaditional().toString());
 				txtFldValabilitateCtr.setText(getSelectedCustomer().getValabilitateCrt().toString());
+				
+				angeklickteButton = "btnEditeazaClient";
 				
 			}
 		});
@@ -244,12 +250,12 @@ public class MainUI extends JFrame {
 				//save or edit/update a new customer
 				if(!(txtFldDenumireClient.getText().isEmpty() || txtFldNrCtr.getText().isEmpty())){
 					DBverbindung.dbconnect();
-					if(e.getActionCommand().equals("Creaza Client")){
-						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClient.getText().toString(), txtFldNrCtr.getText().toString(), 
-								txtFldActeAditionale.getText().toString(), txtFldValabilitateCtr.getText().toString());
-						Kundedomain tmp = ks.createKunde(kundeNou);
+					if(angeklickteButton.equals("btnCreazaClient")){
+//						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClient.getText().toString(), txtFldNrCtr.getText().toString(), 
+//								txtFldActeAditionale.getText().toString(), txtFldValabilitateCtr.getText().toString());
+//						Kundedomain tmp = ks.createKunde(kundeNou);
 						System.out.println("Button create pressed");
-					}else if(e.getActionCommand().equals("Editeaza Client")){
+					}else if(angeklickteButton.equals("btnEditeazaClient")){
 						System.out.println("Button edit pressed");
 					}
 					DBverbindung.dbdisconect();
