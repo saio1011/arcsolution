@@ -82,5 +82,11 @@ public class Kundeservice {
 //		DBverbindung.dbdisconect();
 		return kunde;
 	}
+	public Kundedomain updateKunde(int id,Kundedomain kunde){
+		//TODO - update kunde
+		
+		System.out.println("update kunde mit id "+id+" aufgerufen");
+		return kunde;
+	}
 	
 }

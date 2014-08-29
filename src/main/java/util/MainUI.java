@@ -7,7 +7,6 @@ import kundenverwaltung.service.*;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
@@ -22,6 +21,11 @@ import java.util.List;
 import java.awt.CardLayout;
 
 import javax.swing.JPanel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.text.BadLocationException;
 
 public class MainUI extends JFrame {
 
@@ -32,7 +36,7 @@ public class MainUI extends JFrame {
 	private JTextField txtFldCautaClient;
 	private JList listKundenInDB;
 	private JLabel lblClientiInDb;
-	private JScrollPane scrollPane;
+	private JScrollPane scrollPaneListKundeInDB;
 	private JButton btnCautaClient;
 	private JButton btnCreazaClient;
 	private JLabel lblTitleKundeUI;
@@ -49,12 +53,20 @@ public class MainUI extends JFrame {
 	private JButton btnDebitorenVerwaltung;
 	private JPanel debitorenMainUI;
 	private JLabel lblTitleDebMainUI;
+	private JLabel lblClientSelectatDebMainUi;
 	private JButton btnEditeazaClient;
 	private JButton btnCancelDebMainUI;
+	private JButton btnEditeazaDebitorDebMainUI;
+	private JLabel lblDebitoriInDbDebMainUI;
 	
 	
 	private Kundedomain selectedKunde;
 	private String angeklickteButton;
+	private JButton btnCautaDebitoriDebMainUI;
+	private JButton btnCreazaDebitorDebMainUI;
+	private JTextField txtFldCautaDebitorDebMainUI;
+	private JScrollPane scrollPaneListDebitoriInDB;
+	private JList listDebitorenInDbDebMainUI;
 	
 	/**
 	 * Launch the application.
@@ -115,9 +127,11 @@ public class MainUI extends JFrame {
 				listKundenInDB.setVisible(true);
 				btnDebitorenVerwaltung.setVisible(true);
 				btnEditeazaClient.setVisible(true);
-				scrollPane.setVisible(true);
+				scrollPaneListKundeInDB.setVisible(true);
 				lblClientiInDb.setVisible(true);
 				listKundenInDB.setListData(allKunden.toArray());
+				btnEditeazaClient.setEnabled(false);
+				btnDebitorenVerwaltung.setEnabled(false);
 			}
 		});
 		mainUI.add(btnCautaClient);
@@ -128,6 +142,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				mainUI.setVisible(false);
 				kundeUI.setVisible(true);
+				frame.setTitle("Arc Solution - Creaza Client");
 				
 				angeklickteButton = "btnCreazaClient";
 			}
@@ -135,14 +150,23 @@ public class MainUI extends JFrame {
 		btnCreazaClient.setBounds(206, 154, 135, 23);
 		mainUI.add(btnCreazaClient);
 		
-		scrollPane = new JScrollPane();
-		scrollPane.setBounds(21, 316, 704, 182);
-		scrollPane.setVisible(false);
-		mainUI.add(scrollPane);
+		scrollPaneListKundeInDB = new JScrollPane();
+		scrollPaneListKundeInDB.setBounds(21, 316, 704, 182);
+		scrollPaneListKundeInDB.setVisible(false);
+		mainUI.add(scrollPaneListKundeInDB);
 		
 		listKundenInDB = new JList();
 		listKundenInDB.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		scrollPane.setViewportView(listKundenInDB);
+		listKundenInDB.addListSelectionListener(new ListSelectionListener() {
+			
+			// enable Edit-button and Debitorenverwaltung-button when one Item is selected
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				btnEditeazaClient.setEnabled(true);
+				btnDebitorenVerwaltung.setEnabled(true);
+			}
+		});
+		scrollPaneListKundeInDB.setViewportView(listKundenInDB);
 		
 		lblClientiInDb = new JLabel("Clienti in DB");
 		lblClientiInDb.setBounds(21, 290, 111, 14);
@@ -163,13 +187,15 @@ public class MainUI extends JFrame {
 				//set debitorenMainUI as visible
 				mainUI.setVisible(false);
 				debitorenMainUI.setVisible(true);
+				frame.setTitle("Arc Solution - Administreaza Debitori");
 				
-				//list only one customer as title
-				lblTitleDebMainUI.setText(getSelectedCustomer().getName().toString());
+				//list only one customer as title in DebitorenMainUI
+				lblClientSelectatDebMainUi.setText(getSelectedCustomer().getName().toString());
 			}
 		});
 		btnDebitorenVerwaltung.setBounds(313, 282, 167, 23);
 		btnDebitorenVerwaltung.setVisible(false);
+		btnDebitorenVerwaltung.setEnabled(false);
 		mainUI.add(btnDebitorenVerwaltung);
 		
 		//Edit Customer
@@ -178,6 +204,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				kundeUI.setVisible(true);
 				mainUI.setVisible(false);
+				frame.setTitle("Arc Solution - Editeaza Client");
 			
 				//Edit and Update selected customer
 				txtFldDenumireClient.setText(getSelectedCustomer().getName().toString());
@@ -190,6 +217,7 @@ public class MainUI extends JFrame {
 			}
 		});
 		btnEditeazaClient.setBounds(136, 282, 167, 23);
+		btnEditeazaClient.setEnabled(false);
 		btnEditeazaClient.setVisible(false);
 		mainUI.add(btnEditeazaClient);
 
@@ -245,18 +273,27 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				mainUI.setVisible(true);
 				kundeUI.setVisible(false);
+				frame.setTitle("Arc Solution");
 				
-				//TODO Switch funktioniert nicht
 				//save or edit/update a new customer
 				if(!(txtFldDenumireClient.getText().isEmpty() || txtFldNrCtr.getText().isEmpty())){
 					DBverbindung.dbconnect();
 					if(angeklickteButton.equals("btnCreazaClient")){
-//						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClient.getText().toString(), txtFldNrCtr.getText().toString(), 
-//								txtFldActeAditionale.getText().toString(), txtFldValabilitateCtr.getText().toString());
-//						Kundedomain tmp = ks.createKunde(kundeNou);
-						System.out.println("Button create pressed");
+						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClient.getText().toString(), txtFldNrCtr.getText().toString(), 
+								txtFldActeAditionale.getText().toString(), txtFldValabilitateCtr.getText().toString());
+						Kundedomain tmp = ks.createKunde(kundeNou);
+						//TODO Success Meldung anzeigen
+						
+//						System.out.println("Button create pressed");
 					}else if(angeklickteButton.equals("btnEditeazaClient")){
+						//TODO - updateKunde only when the customer is modified
+						
+						//TODO ks.updateKunde
+						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClient.getText().toString(), txtFldNrCtr.getText().toString(), 
+								txtFldActeAditionale.getText().toString(), txtFldValabilitateCtr.getText().toString());
+						Kundedomain tmp = ks.updateKunde(selectedKunde.getID(), kundeNou);
 						System.out.println("Button edit pressed");
+						
 					}
 					DBverbindung.dbdisconect();
 				}
@@ -277,6 +314,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				mainUI.setVisible(true);
 				kundeUI.setVisible(false);
+				frame.setTitle("Arc Solution");
 				
 				//clear all fields by cancel
 				txtFldDenumireClient.setText(null);
@@ -293,8 +331,8 @@ public class MainUI extends JFrame {
 		frame.getContentPane().add(debitorenMainUI, "name_79084692757183");
 		debitorenMainUI.setLayout(null);
 		
-		lblTitleDebMainUI = new JLabel("Client Selectat");
-		lblTitleDebMainUI.setBounds(10, 11, 842, 14);
+		lblTitleDebMainUI = new JLabel("Client:");
+		lblTitleDebMainUI.setBounds(10, 11, 43, 14);
 		debitorenMainUI.add(lblTitleDebMainUI);
 		
 		//Cancel
@@ -303,10 +341,67 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				mainUI.setVisible(true);
 				debitorenMainUI.setVisible(false);
+				frame.setTitle("Arc Solution");
 			}
 		});
 		btnCancelDebMainUI.setBounds(171, 533, 89, 23);
 		debitorenMainUI.add(btnCancelDebMainUI);		
+		
+		lblClientSelectatDebMainUi = new JLabel("Client Selectat");
+		lblClientSelectatDebMainUi.setBounds(63, 11, 442, 14);
+		debitorenMainUI.add(lblClientSelectatDebMainUi);
+		
+		btnCautaDebitoriDebMainUI = new JButton("Cauta Debitori");
+		btnCautaDebitoriDebMainUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//teste
+				DBverbindung.dbconnect();
+				ArrayList<Kundedomain> allKunden = ks.findKundenByName(txtFldCautaClient.getText());
+				ArrayList<Kundedomain> allKunden1 = ks.getAllKunden();
+				DBverbindung.dbdisconect();	
+				
+				listDebitorenInDbDebMainUI.setVisible(true);
+				btnEditeazaDebitorDebMainUI.setVisible(true);
+				scrollPaneListDebitoriInDB.setVisible(true);
+				lblDebitoriInDbDebMainUI.setVisible(true);
+				listDebitorenInDbDebMainUI.setListData(allKunden.toArray());
+			}
+		});
+		btnCautaDebitoriDebMainUI.setBounds(206, 120, 135, 23);
+		debitorenMainUI.add(btnCautaDebitoriDebMainUI);
+		
+		btnEditeazaDebitorDebMainUI = new JButton("Editeaza Debitor");
+		btnEditeazaDebitorDebMainUI.setBounds(136, 282, 167, 23);
+		btnEditeazaDebitorDebMainUI.setEnabled(false);
+		debitorenMainUI.add(btnEditeazaDebitorDebMainUI);
+		
+		btnCreazaDebitorDebMainUI = new JButton("Creaza Debitor");
+		btnCreazaDebitorDebMainUI.setBounds(206, 154, 135, 23);
+		debitorenMainUI.add(btnCreazaDebitorDebMainUI);
+		
+		txtFldCautaDebitorDebMainUI = new JTextField();
+		txtFldCautaDebitorDebMainUI.setColumns(10);
+		txtFldCautaDebitorDebMainUI.setBounds(382, 120, 343, 23);
+		debitorenMainUI.add(txtFldCautaDebitorDebMainUI);
+		
+		scrollPaneListDebitoriInDB = new JScrollPane();
+		scrollPaneListDebitoriInDB.setBounds(21, 316, 704, 182);
+		scrollPaneListDebitoriInDB.setVisible(false);
+		debitorenMainUI.add(scrollPaneListDebitoriInDB);
+		
+		listDebitorenInDbDebMainUI = new JList();
+		listDebitorenInDbDebMainUI.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listDebitorenInDbDebMainUI.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				btnEditeazaDebitorDebMainUI.setEnabled(true);
+			}
+		});
+		scrollPaneListDebitoriInDB.setViewportView(listDebitorenInDbDebMainUI);
+		
+		
+		lblDebitoriInDbDebMainUI = new JLabel("Debitori in DB");
+		lblDebitoriInDbDebMainUI.setBounds(21, 290, 111, 14);
+		debitorenMainUI.add(lblDebitoriInDbDebMainUI);
 	}
 	
 //Hilfsmethoden
