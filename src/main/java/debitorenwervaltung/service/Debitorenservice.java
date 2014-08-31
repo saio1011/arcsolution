@@ -9,9 +9,13 @@ import debitorenwervaltung.domain.*;
 public class Debitorenservice {
 	
 	Debitorendomain tmpDebitoren;
+	Debitorendomain tmpDebitorenMock;
 	
+	@SuppressWarnings("deprecation")
 	public ArrayList<Debitorendomain> getAllDebitorenByKundenId(int kundeID){
 		ArrayList<Debitorendomain> debitori = new ArrayList<Debitorendomain>();
+		ArrayList<Debitorendomain> debitoriMock = new ArrayList<Debitorendomain>();
+		/*
 		try{
 			Statement st = DBverbindung.getConn().createStatement();
 			ResultSet res = st.executeQuery("SELECT * FROM debitor where ID_Kunde = " + kundeID); 
@@ -24,20 +28,25 @@ public class Debitorenservice {
 				Date datNotUltimo = res.getDate("DataNotifUltimativa");
 				Date datNotUltimoPrimire = res.getDate("DataNotifConfPrimire");
 				int idKunde = res.getInt("ID_Kunde");
+				*/
+				
+				//MockDaten simuliren
+				tmpDebitorenMock = new Debitorendomain(1, "Debitor1", 22.01, new Date(2001, 03, 21), new Date(2001, 03, 21), new Date(2001, 03, 21), new Date(2001, 03, 21), 5);
 				
 				
 //				Debitorendomain tmp = new Debitorendomain(idDeb, nname, valCreanta, datNotif, datConfPrimire, datNotUltimo, datNotUltimoPrimire, idKunde);
-				tmpDebitoren = new Debitorendomain(idDeb, nname, valCreanta, datNotif, datConfPrimire, datNotUltimo, datNotUltimoPrimire, idKunde);
+				//tmpDebitoren = new Debitorendomain(idDeb, nname, valCreanta, datNotif, datConfPrimire, datNotUltimo, datNotUltimoPrimire, idKunde);
 				
 				
 				debitori.add(tmpDebitoren);
-			}
-		}catch (Exception ex){
-			System.out.println(ex.getMessage());
-		}
+				debitoriMock.add(tmpDebitorenMock);
+//			}
+//		}catch (Exception ex){
+//			System.out.println(ex.getMessage());
+//		}
 		
 //		DBverbindung.dbdisconect();
-		return debitori;
+		return debitoriMock;
 	}
 	
 	public void getAllActiunibyDebitor(int idDebit){

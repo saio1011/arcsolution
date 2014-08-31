@@ -7,7 +7,7 @@ public class DBverbindung {
 	private static String dbName = "arc";
 	private static String driver = "com.mysql.jdbc.Driver"; 
 	private static String userName = "root"; 
-	private static String password = "12345";
+	private static String password = "";//"12345";
 	private static Connection conn;
 	
 	

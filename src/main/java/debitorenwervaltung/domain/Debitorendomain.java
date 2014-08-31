@@ -105,10 +105,15 @@ public class Debitorendomain {
 		listAdresa.add(adresa);
 	}
 	
-	
-	
-	
-	
-	
-
+	@Override
+	public String toString() {
+		return "Debitorendomain [IDDeb=" + IDDeb + ", Name=" + Name
+				+ ", ValoareCranta=" + ValoareCranta + ", DataNotificare="
+				+ DataNotificare + ", DataConfPrimire=" + DataConfPrimire
+				+ ", DataNotifUltimativa=" + DataNotifUltimativa
+				+ ", DataNotifConfPrimire=" + DataNotifConfPrimire
+				+ ", IDKunde=" + IDKunde + ", listActiuni=" + listActiuni
+				+ ", listContact=" + listContact + ", listAdresa=" + listAdresa
+				+ "]";
+	}
 }
