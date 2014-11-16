@@ -7,6 +7,7 @@ import kundenverwaltung.domain.Kundedomain;
 import kundenverwaltung.service.*;
 import debitorenwervaltung.service.*;
 import debitorenwervaltung.domain.*;
+import util.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -20,6 +21,8 @@ import javax.swing.ListSelectionModel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.CardLayout;
@@ -140,7 +143,7 @@ public class MainUI extends JFrame {
 	private JLabel lblCUIKundeKundeUI;
 	private JTextField txtFldCUIKundeKundeUI;
 	private JLabel lblNrOrcKundeKundeUI;
-	private JTextField textField;
+	private JTextField txtFldNrONRCClientKundeUI;
 	private JLabel lblCUIDebitorDebitorUI;
 	private JTextField txtFldCUIDebitorDebitorUI;
 	private JLabel lblStatusDebitorDebitorUI;
@@ -151,7 +154,8 @@ public class MainUI extends JFrame {
 	private JButton btnAfisazaActiuniDebVerwMainUI;
 	private JLabel label;
 	private JLabel lblDescriptionActiuneDebitorUI;
-	private JTextField textField_1;
+	private JTextField txtFldActiuneDebitorUI;
+	private JCheckBox chckbxActiuneDebitorActiv;
 	private JButton btnAdaugaActiuneDebVerwMainUI;
 	private JPanel actiuneUI;
 	private JButton btnCancelActiuneUI;
@@ -192,6 +196,7 @@ public class MainUI extends JFrame {
 		Kundeservice ks = new Kundeservice();
 		Debitorenservice ds = new Debitorenservice();
 		
+		String[] searchKundeElement = {"Name", "Cui"};
 		String[] statusDebitorElement = {"Activ", "Inactiv"};
 		String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
 		
@@ -218,8 +223,8 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				//read customers from db
 				DBverbindung.dbconnect();
-				ArrayList<Kundedomain> allKunden = ks.findKundenByName(txtFldCautaClient.getText());
-				ArrayList<Kundedomain> allKunden1 = ks.getAllKunden();
+				ArrayList<Kundedomain> allKunden = ks.findKundenByName(comboBoxSearchMainUI.getSelectedItem().toString(),txtFldCautaClient.getText());
+//				ArrayList<Kundedomain> allKunden1 = ks.getAllKunden();
 				DBverbindung.dbdisconect();	
 				
 				//add customers into listOutput
@@ -286,10 +291,10 @@ public class MainUI extends JFrame {
 				//set debitorenMainUI as visible
 				mainUI.setVisible(false);
 				kundeverwaltungMainUI.setVisible(true);
-				frmArcSolutions.setTitle("ARC Solutions - Administreaza client - "+ getSelectedCustomer().getName().toString());
+				frmArcSolutions.setTitle("ARC Solutions - Administreaza client - "+ getSelectedCustomer().getDenumireClient().toString());
 				
 				//list only one customer as title in DebitorenMainUI
-				lblClientSelectatDebMainUi.setText(getSelectedCustomer().getName().toString());
+				lblClientSelectatDebMainUi.setText(getSelectedCustomer().getDenumireClient().toString());
 			}
 		});
 		btnVerwaltungMainUI.setVisible(false);
@@ -306,10 +311,18 @@ public class MainUI extends JFrame {
 				frmArcSolutions.setTitle("ARC Solutions - Editeaza Client");
 			
 				//Edit and Update selected customer
-				txtFldDenumireClientKundeUI.setText(getSelectedCustomer().getName().toString());
-				txtFldNrCtrKundeUI.setText(getSelectedCustomer().getKontraktNr().toString());
-				txtFldActeAditionaleKundeUI.setText(getSelectedCustomer().getActaditional().toString());
-				comboBoxValabilitateCtrKundeUI.setSelectedItem(getSelectedCustomer().getValabilitateCrt().toString());
+				txtFldDenumireClientKundeUI.setText(getSelectedCustomer().getDenumireClient().toString());
+				txtFldNrCtrKundeUI.setText(getSelectedCustomer().getNrContract().toString());
+				txtFldActeAditionaleKundeUI.setText(getSelectedCustomer().getActeAditionale().toString());
+				comboBoxValabilitateCtrKundeUI.setSelectedItem(getSelectedCustomer().getValabilitateCtr().toString());
+				txtFldCUIKundeKundeUI.setText(getSelectedCustomer().getCui().toString());
+				txtFldNrONRCClientKundeUI.setText(getSelectedCustomer().getNrONRC().toString());
+				textAreaContactClientKundeUI.setText(getSelectedCustomer().getContactClient().toString());
+				txtFldStradaKundeKundeUI.setText(getSelectedCustomer().getAdresa().getStrada().toString());
+				txtFldNummerStrKundeUI.setText(getSelectedCustomer().getAdresa().getNummer());
+				txtFldPLZKundeKundeUI.setText(getSelectedCustomer().getAdresa().getCodPostal());
+				txtFldLocalitateKundeKundeUI.setText(getSelectedCustomer().getAdresa().getOras());
+				txtFldTaraKundeKundeUI.setText(getSelectedCustomer().getAdresa().getCountry());
 				
 				angeklickteButton = "btnEditeazaClient";
 				
@@ -323,24 +336,23 @@ public class MainUI extends JFrame {
 		sep1MainUI.setBounds(19, 47, 850, 12);
 		mainUI.add(sep1MainUI);
 		
-		btnActiuniAziMainUI = new JButton("Actiuni Curente");
+		btnActiuniAziMainUI = new JButton("Situatie Client");
 		btnActiuniAziMainUI.setBounds(21, 59, 158, 29);
 		mainUI.add(btnActiuniAziMainUI);
 		
-		btnFacturiDePrescrisMainUI = new JButton("Facturi urgente");
+		btnFacturiDePrescrisMainUI = new JButton("Alerte Facturi");
 		btnFacturiDePrescrisMainUI.setBounds(191, 59, 158, 29);
 		mainUI.add(btnFacturiDePrescrisMainUI);
 		
 		sep2MainUI = new JSeparator();
 		sep2MainUI.setBounds(21, 87, 848, 12);
 		mainUI.add(sep2MainUI);
-		
-		String[] searchKundeElement = {"Nume", "CUI"}; 
+		 
 		comboBoxSearchMainUI = new JComboBox(searchKundeElement);
 		comboBoxSearchMainUI.setBounds(179, 120, 104, 27);
 		mainUI.add(comboBoxSearchMainUI);
 		
-		btnRaportareGenMainUI = new JButton("Raportare Generala");
+		btnRaportareGenMainUI = new JButton("Raportari");
 		btnRaportareGenMainUI.setBounds(361, 59, 158, 29);
 		mainUI.add(btnRaportareGenMainUI);
 
@@ -394,32 +406,42 @@ public class MainUI extends JFrame {
 				
 				//save or edit/update a new customer
 				if(!(txtFldDenumireClientKundeUI.getText().isEmpty() || txtFldNrCtrKundeUI.getText().isEmpty())){
+					System.out.println(txtFldDenumireClientKundeUI.getText());
 					DBverbindung.dbconnect();
 					if(angeklickteButton.equals("btnCreazaClient")){
-						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText().toString(), txtFldNrCtrKundeUI.getText().toString(), 
-								txtFldActeAditionaleKundeUI.getText().toString(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString());
+						Adresa adresa = new Adresa(txtFldStradaKundeKundeUI.getText(), txtFldNummerStrKundeUI.getText(),
+								txtFldPLZKundeKundeUI.getText(),txtFldLocalitateKundeKundeUI.getText(),txtFldTaraKundeKundeUI.getText());
+						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText(), txtFldNrCtrKundeUI.getText(), 
+								txtFldActeAditionaleKundeUI.getText(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString(),
+								textAreaContactClientKundeUI.getText(), txtFldCUIKundeKundeUI.getText(), txtFldNrONRCClientKundeUI.getText(), adresa);
 						Kundedomain tmp = ks.createKunde(kundeNou);
 						
 						//TODO Success Meldung anzeigen
 						
 //						System.out.println("Button create pressed");
 					}else if(angeklickteButton.equals("btnEditeazaClient")){
-						//TODO - updateKunde only when the customer is modified
+						//TODO - updateKunde only when the customer is modified - performance issue??
 						
 						//TODO ks.updateKunde
-						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText().toString(), txtFldNrCtrKundeUI.getText().toString(), 
-								txtFldActeAditionaleKundeUI.getText().toString(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString());
-						Kundedomain tmp = ks.updateKunde(selectedKunde.getID(), kundeNou);
+						Adresa adresa = new Adresa(txtFldStradaKundeKundeUI.getText(), txtFldNummerStrKundeUI.getText(),
+								txtFldPLZKundeKundeUI.getText(),txtFldLocalitateKundeKundeUI.getText(),txtFldTaraKundeKundeUI.getText());
+						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText(), txtFldNrCtrKundeUI.getText(), 
+								txtFldActeAditionaleKundeUI.getText(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString(),
+								textAreaContactClientKundeUI.getText(), txtFldCUIKundeKundeUI.getText(), txtFldNrONRCClientKundeUI.getText(), adresa);
+						Kundedomain tmp = ks.updateKunde(selectedKunde.getId(), kundeNou);
+						
+						//TODO Success Meldung anzeigen
 						System.out.println("Button edit pressed");
+						System.out.println(selectedKunde.getId());
 						
 					}
 					DBverbindung.dbdisconect();
 				}
 				
 				//clear all fields after save
-				txtFldDenumireClientKundeUI.setText(null);
-				txtFldNrCtrKundeUI.setText(null);
-				txtFldActeAditionaleKundeUI.setText(null);
+				//TODO we have to clear only if save was successfully
+				//TODO refresh list of customer after update and after create - we need that once
+				clearCustomerUI();
 			}
 		});
 		btnSalveazaClientKundeUI.setBounds(541, 532, 151, 23);
@@ -434,9 +456,7 @@ public class MainUI extends JFrame {
 				frmArcSolutions.setTitle("ARC Solutions");
 				
 				//clear all fields by cancel
-				txtFldDenumireClientKundeUI.setText(null);
-				txtFldNrCtrKundeUI.setText(null);
-				txtFldActeAditionaleKundeUI.setText(null);
+				clearCustomerUI();
 			}
 		});
 		btnCancelKundeUI.setBounds(719, 532, 151, 23);
@@ -525,14 +545,14 @@ public class MainUI extends JFrame {
 		kundeUI.add(txtFldCUIKundeKundeUI);
 		txtFldCUIKundeKundeUI.setColumns(10);
 		
-		lblNrOrcKundeKundeUI = new JLabel("Nr ORC");
-		lblNrOrcKundeKundeUI.setBounds(571, 210, 61, 16);
+		lblNrOrcKundeKundeUI = new JLabel("NR. ORNC");
+		lblNrOrcKundeKundeUI.setBounds(571, 210, 87, 16);
 		kundeUI.add(lblNrOrcKundeKundeUI);
 		
-		textField = new JTextField();
-		textField.setBounds(670, 210, 200, 20);
-		kundeUI.add(textField);
-		textField.setColumns(10);
+		txtFldNrONRCClientKundeUI = new JTextField();
+		txtFldNrONRCClientKundeUI.setBounds(670, 210, 200, 20);
+		kundeUI.add(txtFldNrONRCClientKundeUI);
+		txtFldNrONRCClientKundeUI.setColumns(10);
 		
 //kundeverwaltungMainUI
 		kundeverwaltungMainUI = new JPanel();
@@ -580,7 +600,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				//teste
 				DBverbindung.dbconnect();
-				ArrayList<Debitorendomain> allDebitoren = ds.getAllDebitorenByKundenId(selectedKunde.getID());
+				ArrayList<Debitorendomain> allDebitoren = ds.getAllDebitorenByKundenId(selectedKunde.getId());
 				DBverbindung.dbdisconect();	
 				
 				listDebitorenInDbDebMainUI.setVisible(true);
@@ -601,7 +621,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				kundeverwaltungMainUI.setVisible(false);
 				debitorUI.setVisible(true);
-				frmArcSolutions.setTitle("ARC Solutions - Editeaza Debitor - "+getSelectedCustomer().getName().toString());
+				frmArcSolutions.setTitle("ARC Solutions - Editeaza Debitor - "+getSelectedCustomer().getDenumireClient().toString());
 				//TODO - DebitorenUI Fields fill with selected Debitor values
 				
 				angeklickteButton = "btnEditeazaDebitorDebMainUI";
@@ -617,7 +637,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				kundeverwaltungMainUI.setVisible(false);
 				debitorUI.setVisible(true);
-				lblClientDebitorUI.setText(getSelectedCustomer().getName().toString());
+				lblClientDebitorUI.setText(getSelectedCustomer().getDenumireClient().toString());
 				
 				angeklickteButton = "btnCreazaDebitorDebMainUI";
 				
@@ -675,7 +695,7 @@ public class MainUI extends JFrame {
 		comboBoxCautaNumeDebMainUI.setBounds(171, 100, 117, 27);
 		kundeverwaltungMainUI.add(comboBoxCautaNumeDebMainUI);
 		
-		btnReportClientKundeVerwMainUI = new JButton("Raportare Client");
+		btnReportClientKundeVerwMainUI = new JButton("Raport Client");
 		btnReportClientKundeVerwMainUI.setBounds(30, 49, 134, 29);
 		kundeverwaltungMainUI.add(btnReportClientKundeVerwMainUI);
 		
@@ -698,7 +718,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				debitorUI.setVisible(false);
 				kundeverwaltungMainUI.setVisible(true);
-				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getName().toString());
+				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getDenumireClient().toString());
 				
 				//clear all fields by cancel
 				txtFldDenumireDebitorDebitorUI.setText(null);
@@ -804,7 +824,7 @@ public class MainUI extends JFrame {
 				
 				kundeverwaltungMainUI.setVisible(true);
 				debitorUI.setVisible(false);
-				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getName().toString());
+				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getDenumireClient().toString());
 				
 				//save or edit/update a new debitor
 				if(!(txtFldDenumireDebitorDebitorUI.getText().isEmpty())){
@@ -887,14 +907,30 @@ public class MainUI extends JFrame {
 		lblDescriptionActiuneDebitorUI.setBounds(130, 400, 121, 16);
 		debitorUI.add(lblDescriptionActiuneDebitorUI);
 		
-		textField_1 = new JTextField();
-		textField_1.setBounds(278, 394, 594, 28);
-		debitorUI.add(textField_1);
-		textField_1.setColumns(10);
+		txtFldActiuneDebitorUI = new JTextField();
+		txtFldActiuneDebitorUI.setBounds(278, 394, 594, 28);
+		debitorUI.add(txtFldActiuneDebitorUI);
+		txtFldActiuneDebitorUI.setColumns(10);
+		txtFldActiuneDebitorUI.setEnabled(false);
 		
-		JCheckBox chckbxNewCheckBox = new JCheckBox("Introduce Actiune");
-		chckbxNewCheckBox.setBounds(78, 365, 165, 23);
-		debitorUI.add(chckbxNewCheckBox);
+		chckbxActiuneDebitorActiv = new JCheckBox("Introduce Actiune");
+		chckbxActiuneDebitorActiv.setBounds(78, 365, 165, 23);
+		debitorUI.add(chckbxActiuneDebitorActiv);
+		chckbxActiuneDebitorActiv.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED){
+					txtFldActiuneDebitorUI.setEnabled(true);
+					textAreaActiuniDebitorUI.setEnabled(true);
+				}else {
+					txtFldActiuneDebitorUI.setEnabled(false);
+					textAreaActiuniDebitorUI.setEnabled(false);
+				}
+				// TODO Auto-generated method stub
+//				System.out.println(e.getStateChange() == ItemEvent.SELECTED ? "Selected" : "Deselected");
+				
+			}
+		});
 		
 	
 //BillingManiUI
@@ -906,7 +942,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				debitorenverwaltungMainUI.setVisible(false);
 				kundeverwaltungMainUI.setVisible(true);
-				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getName().toString());
+				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getDenumireClient().toString());
 				
 			}
 		});
@@ -988,7 +1024,7 @@ public class MainUI extends JFrame {
 		btnAdaugaActiuneDebVerwMainUI.setBounds(539, 274, 133, 29);
 		debitorenverwaltungMainUI.add(btnAdaugaActiuneDebVerwMainUI);
 		
-		JButton btnPlatesteFacturaDebVerwMainUI = new JButton("Plateste Factura");
+		JButton btnPlatesteFacturaDebVerwMainUI = new JButton("Achitare Factura");
 		btnPlatesteFacturaDebVerwMainUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				debitorenverwaltungMainUI.setVisible(false);
@@ -1006,7 +1042,7 @@ public class MainUI extends JFrame {
 		separator_5.setBounds(20, 33, 852, 12);
 		debitorenverwaltungMainUI.add(separator_5);
 		
-		JButton btnReportDebitorDebVerwMauiUI = new JButton("Raportare Debitor");
+		JButton btnReportDebitorDebVerwMauiUI = new JButton("Raport Debitor");
 		btnReportDebitorDebVerwMauiUI.setBounds(77, 47, 153, 29);
 		debitorenverwaltungMainUI.add(btnReportDebitorDebVerwMauiUI);
 		
@@ -1079,6 +1115,21 @@ public class MainUI extends JFrame {
 		return selectedKunde;
 	}
 	
+	//clear all fields from customer UI
+	private void clearCustomerUI(){
+		txtFldDenumireClientKundeUI.setText(null);
+		txtFldNrCtrKundeUI.setText(null);
+		txtFldActeAditionaleKundeUI.setText(null);
+		comboBoxValabilitateCtrKundeUI.setSelectedItem(null);
+		txtFldCUIKundeKundeUI.setText(null);
+		txtFldNrONRCClientKundeUI.setText(null);
+		textAreaContactClientKundeUI.setText(null);
+		txtFldStradaKundeKundeUI.setText(null);
+		txtFldNummerStrKundeUI.setText(null);
+		txtFldPLZKundeKundeUI.setText(null);
+		txtFldLocalitateKundeKundeUI.setText(null);
+		txtFldTaraKundeKundeUI.setText("Romania");
+	}
 	
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {

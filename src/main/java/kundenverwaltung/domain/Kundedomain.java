@@ -1,84 +1,111 @@
 package kundenverwaltung.domain;
+import util.*;
 
+/**
+ * @author mihaisava
+ *		private atribute	"Id"
+ *		public atribute 	"id"
+ */
 public class Kundedomain {
-	private int ID;
-	private String Name;
-	private String KontraktNr;
-	private String Actaditional;
-	private String valabilitateCtr;
+	private int Id;
+	private String DenumireClient;
+	private String NrContract;
+	private String ActeAditionale;
+	private String ValabilitateCtr;
+	private String ContactClient;
+	private String Cui;
+	private String NrONRC;
+	private Adresa Adresa;
 	
-	public Kundedomain(int iD, String name, String kontraktNr, String actaditional,
-			String valabilitateCrt) {
+	public Kundedomain(int id, String name, String nrContract, String acteAditionale,
+			String valabilitateCrt, String contactCl, String cui, String nrONRC, Adresa adresa) {
 		super();
-		ID = iD;
-		Name = name;
-		KontraktNr = kontraktNr;
-		Actaditional = actaditional;
-		this.valabilitateCtr = valabilitateCrt;
+		this.Id = id;
+		this.DenumireClient = name;
+		this.NrContract = nrContract;
+		this.ActeAditionale = acteAditionale;
+		this.ValabilitateCtr = valabilitateCrt;
+		this.ContactClient = contactCl;
+		this.Cui = cui;
+		this.NrONRC = nrONRC;
+		this.Adresa = adresa;
+//		this.Adresa = new Adresa(adresa.getStrada(), adresa.getNummer(), adresa.getCodPostal(), adresa.getOras(), adresa.getCountry());
 	}
-	public Kundedomain(String name, String kontraktNr, String actaditional,
-			String valabilitateCrt) {
+	public Kundedomain(String name, String nrContract, String acteAditionale,
+			String valabilitateCrt, String contactCl, String cui, String nrONRC, Adresa adresa) {
 		super();
-		Name = name;
-		KontraktNr = kontraktNr;
-		Actaditional = actaditional;
-		this.valabilitateCtr = valabilitateCrt;
+		this.DenumireClient = name;
+		this.NrContract = nrContract;
+		this.ActeAditionale = acteAditionale;
+		this.ValabilitateCtr = valabilitateCrt;
+		this.ContactClient = contactCl;
+		this.Cui = cui;
+		this.NrONRC = nrONRC;
+		this.Adresa = new Adresa(adresa.getStrada(), adresa.getNummer(), adresa.getCodPostal(), adresa.getOras(), adresa.getCountry());
 	}
-
-	public int getID() {
-		return ID;
+	
+	public String getDenumireClient() {
+		return DenumireClient;
 	}
-	public String getIDString(){
-		return ""+ID;
+	public void setDenumireClient(String denumireClient) {
+		DenumireClient = denumireClient;
 	}
-
-	public void setID(int iD) {
-		ID = iD;
+	public String getNrContract() {
+		return NrContract;
 	}
-
-	public String getName() {
-		return Name;
+	public void setNrContract(String nrContract) {
+		NrContract = nrContract;
 	}
-
-	public void setName(String name) {
-		Name = name;
+	public String getActeAditionale() {
+		return ActeAditionale;
 	}
-
-	public String getKontraktNr() {
-		return KontraktNr;
+	public void setActeAditionale(String acteAditionale) {
+		ActeAditionale = acteAditionale;
 	}
-
-	public void setKontraktNr(String kontraktNr) {
-		KontraktNr = kontraktNr;
+	public String getValabilitateCtr() {
+		return ValabilitateCtr;
 	}
-
-	public String getActaditional() {
-		return Actaditional;
+	public void setValabilitateCtr(String valabilitateCtr) {
+		ValabilitateCtr = valabilitateCtr;
 	}
-
-	public void setActaditional(String actaditional) {
-		Actaditional = actaditional;
+	public String getContactClient() {
+		return ContactClient;
 	}
-
-	public String getValabilitateCrt() {
-		return valabilitateCtr;
+	public void setContactClient(String contactClient) {
+		ContactClient = contactClient;
 	}
-
-	public void setValabilitateCrt(String valabilitateCrt) {
-		this.valabilitateCtr = valabilitateCrt;
+	public String getCui() {
+		return Cui;
 	}
-
+	public void setCui(String cui) {
+		Cui = cui;
+	}
+	public String getNrONRC() {
+		return NrONRC;
+	}
+	public void setNrONRC(String nrONRC) {
+		NrONRC = nrONRC;
+	}
+	public int getId() {
+		return Id;
+	}
+	
+	//TODO 
+	//to check if is correct implemented and if is needed 
+	public Adresa  getAdresa() {
+		return Adresa;
+	}
+	public void setAdresa(Adresa adresa) {
+		Adresa = adresa;
+	}
 	@Override
 	public String toString() {
-		return "Kundedomain [ID=" + ID + ", Name=" + Name + ", KontraktNr="
-				+ KontraktNr + ", Actaditional=" + Actaditional
-				+ ", valabilitateCtr=" + valabilitateCtr + "]";
+		return "DenumireClient=" + DenumireClient
+				+ ", NrContract=" + NrContract + ", ActeAditionale="
+				+ ActeAditionale + ", ValabilitateCtr=" + ValabilitateCtr
+				+ ", ContactClient=" + ContactClient + ", Cui=" + Cui
+				+ ", NrONRC=" + NrONRC;
 	}
 	
-	
-	
-	
-	
-
 }
   

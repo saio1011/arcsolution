@@ -25,8 +25,8 @@ public class main {
 		ArrayList<Debitorendomain> allDebitoren = deb.getAllDebitorenByKundenId(1);
 		
 		
-		Kundedomain kundeNou = new Kundedomain("test6", "ctr6", "actaditional6", "determinat");
-		Kundedomain tmp = ks.createKunde(kundeNou);
+//		Kundedomain kundeNou = new Kundedomain("test6", "ctr6", "actaditional6", "determinat");
+//		Kundedomain tmp = ks.createKunde(kundeNou);
 		
 		DBverbindung.dbdisconect();
 		
