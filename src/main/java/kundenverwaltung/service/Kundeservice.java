@@ -15,6 +15,10 @@ import util.*;
 
 public class Kundeservice {
 	
+	/**
+	 * get all customers
+	 * @return array with all customers
+	 */
 	public ArrayList<Kundedomain> getAllKunden(){
 		ArrayList<Kundedomain> kunden = new ArrayList<Kundedomain>();
 //		DBverbindung.dbconnect();
@@ -51,6 +55,12 @@ public class Kundeservice {
 		return kunden;
 	}
 	
+	/**
+	 * find customer by name or CUI
+	 * @param spalte
+	 * @param nameField
+	 * @return array with customers
+	 */
 	public ArrayList<Kundedomain> findKundenByName(String spalte, String nameField){
 		ArrayList<Kundedomain> kunden = new ArrayList<Kundedomain>();
 //		DBverbindung.dbconnect();
@@ -87,42 +97,48 @@ public class Kundeservice {
 		return kunden;
 	}
 	
-	public Kundedomain createKunde(Kundedomain kunde){
+	/**
+	 * create kunde
+	 * @param kunde
+	 * @return resAdr - it must be 1 in success case
+	 */
+	public int createKunde(Kundedomain kunde){
 		Statement st = null;
+		int resUpdateKunde = -1;
+		int resAdr = -1;
 //		DBverbindung.dbconnect();
 		try{
 			st = DBverbindung.getConn().createStatement();
-			st.executeUpdate("INSERT INTO kunde (`Name`, `Kontraktnr`, `Actaditional`, `Valabilitatectr`, `ContactClient`, `Cui`, `NrONRC`) VALUES "
+			resUpdateKunde = st.executeUpdate("INSERT INTO kunde (`Name`, `Kontraktnr`, `Actaditional`, `Valabilitatectr`, `ContactClient`, `Cui`, `NrONRC`) VALUES "
 					+ "('"+kunde.getDenumireClient().toString()+"', '"+ kunde.getNrContract().toString()+"', '" + kunde.getActeAditionale().toString() 
 					+ "', '"+kunde.getValabilitateCtr().toString()+"', '"+ kunde.getContactClient().toString()+"', '"+ kunde.getCui().toString()+"', '"+ kunde.getNrONRC().toString()+"')");
 			
+			if(resUpdateKunde == 1) {
+				ResultSet res = st.executeQuery("SELECT ID from kunde where "
+						+ "Name = '"+kunde.getDenumireClient()+"' and "
+						+ "Kontraktnr = '"+kunde.getNrContract()+ "' and "
+						+ "Actaditional = '" + kunde.getActeAditionale()+"' and "
+						+ "Cui = '" + kunde.getCui() + "' and "
+						+ "NrONRC = '" +kunde.getNrONRC() + "'");
+				
+				int counter = 0;	
+				int idKunde = -1;
+				while (res.next()){
+					idKunde =  res.getInt("ID");
+					counter ++;
+					System.out.println(idKunde);
+				}
+				
+				if(counter == 1 && idKunde != -1){
+					resAdr = st.executeUpdate("INSERT INTO adresaCLient (`Strada`, `Nummer`, `CodPostal`, `Oras`, `Country`, `ID_Client`) VALUES "
+							+ "('" +kunde.getAdresa().getStrada()+"', '"+kunde.getAdresa().getNummer()+"', '"+ kunde.getAdresa().getCodPostal()
+							+"', '"+kunde.getAdresa().getOras()+"', '"+kunde.getAdresa().getCountry()+"', '"+idKunde+"')");
+				}else{
+					//TODO 
+					//error handling - counter > 1 oder idKunde = -1
+				}
+			}
 
-			ResultSet res = st.executeQuery("SELECT ID from kunde where "
-							+ "Name = '"+kunde.getDenumireClient()+"' and "
-							+ "Kontraktnr = '"+kunde.getNrContract()+ "' and "
-							+ "Actaditional = '" + kunde.getActeAditionale()+"' and "
-							+ "Cui = '" + kunde.getCui() + "' and "
-							+ "NrONRC = '" +kunde.getNrONRC() + "'");
-			
-			//TODO -- use fetch size??? or create a counter in while
-//			System.out.println(res.getFetchSize());
-			
-			int counter = 0;	
-			int idKunde = -1;
-			while (res.next()){
-				idKunde =  res.getInt("ID");
-				counter ++;
-				System.out.println(idKunde);
-			}
-			
-			if(counter == 1 && idKunde != -1){
-				st.executeUpdate("INSERT INTO adresaCLient (`Strada`, `Nummer`, `CodPostal`, `Oras`, `Country`, `ID_Client`) VALUES "
-						+ "('" +kunde.getAdresa().getStrada()+"', '"+kunde.getAdresa().getNummer()+"', '"+ kunde.getAdresa().getCodPostal()
-						+"', '"+kunde.getAdresa().getOras()+"', '"+kunde.getAdresa().getCountry()+"', '"+idKunde+"')");
-			}else{
-				//TODO 
-				//error handling - counter > 1 oder idKunde = -1
-			}
 			
 		}catch (Exception ex){
 			System.out.println(ex.getMessage());
@@ -130,9 +146,17 @@ public class Kundeservice {
 		}
 		
 //		DBverbindung.dbdisconect();
-		return kunde;
+		return resAdr;
 	}
-	public Kundedomain updateKunde(int id,Kundedomain kunde){
+	
+	
+	/**
+	 * update customer
+	 * @param id
+	 * @param kunde
+	 * @return resAdr - it must be 1 in success case 
+	 */
+	public int updateKunde(int id,Kundedomain kunde){
 		Statement st = null;
 		int res = -1;
 		int resAdr = -1;
@@ -162,10 +186,7 @@ public class Kundeservice {
 			System.out.println(st.toString());
 		} 
 		
-		
-		//why return customer - we
-		System.out.println("update kunde mit id "+id+" aufgerufen; resAdr = " + resAdr);
-		return kunde;
+//		System.out.println("update kunde mit id "+id+" aufgerufen; resAdr = " + resAdr);
+		return resAdr;
 	}
-	
 }

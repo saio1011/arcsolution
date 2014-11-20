@@ -84,6 +84,7 @@ public class MainUI extends JFrame {
 	private JTextArea textAreaContactDebitorUI;
 	private JScrollPane scrollPaneActiuniDebitorUI;
 	private JTextArea textAreaActiuniDebitorUI;
+	private JLabel lblMessageBarMainUI;
 	
 	private Kundedomain selectedKunde;
 	private String angeklickteButton;
@@ -199,6 +200,8 @@ public class MainUI extends JFrame {
 		String[] searchKundeElement = {"Name", "Cui"};
 		String[] statusDebitorElement = {"Activ", "Inactiv"};
 		String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
+		String Error = "Error";
+		String None = "None";
 		
 		
 		frmArcSolutions = new JFrame();
@@ -355,6 +358,14 @@ public class MainUI extends JFrame {
 		btnRaportareGenMainUI = new JButton("Raportari");
 		btnRaportareGenMainUI.setBounds(361, 59, 158, 29);
 		mainUI.add(btnRaportareGenMainUI);
+		
+		JSeparator separator_6 = new JSeparator();
+		separator_6.setBounds(21, 645, 450, 12);
+		mainUI.add(separator_6);
+		
+		lblMessageBarMainUI = new JLabel("");
+		lblMessageBarMainUI.setBounds(21, 656, 450, 16);
+		mainUI.add(lblMessageBarMainUI);
 
 //kundeUI
 		kundeUI = new JPanel();
@@ -407,35 +418,38 @@ public class MainUI extends JFrame {
 				//save or edit/update a new customer
 				if(!(txtFldDenumireClientKundeUI.getText().isEmpty() || txtFldNrCtrKundeUI.getText().isEmpty())){
 					System.out.println(txtFldDenumireClientKundeUI.getText());
+					Adresa adresa = new Adresa(txtFldStradaKundeKundeUI.getText(), txtFldNummerStrKundeUI.getText(),
+							txtFldPLZKundeKundeUI.getText(),txtFldLocalitateKundeKundeUI.getText(),txtFldTaraKundeKundeUI.getText());
+					Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText(), txtFldNrCtrKundeUI.getText(), 
+							txtFldActeAditionaleKundeUI.getText(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString(),
+							textAreaContactClientKundeUI.getText(), txtFldCUIKundeKundeUI.getText(), txtFldNrONRCClientKundeUI.getText(), adresa);
+					
 					DBverbindung.dbconnect();
 					if(angeklickteButton.equals("btnCreazaClient")){
-						Adresa adresa = new Adresa(txtFldStradaKundeKundeUI.getText(), txtFldNummerStrKundeUI.getText(),
-								txtFldPLZKundeKundeUI.getText(),txtFldLocalitateKundeKundeUI.getText(),txtFldTaraKundeKundeUI.getText());
-						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText(), txtFldNrCtrKundeUI.getText(), 
-								txtFldActeAditionaleKundeUI.getText(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString(),
-								textAreaContactClientKundeUI.getText(), txtFldCUIKundeKundeUI.getText(), txtFldNrONRCClientKundeUI.getText(), adresa);
-						Kundedomain tmp = ks.createKunde(kundeNou);
-						
+						//create kunde
+						int result = ks.createKunde(kundeNou);
+
 						//TODO Success Meldung anzeigen
-						
 //						System.out.println("Button create pressed");
 					}else if(angeklickteButton.equals("btnEditeazaClient")){
+						//update kunde
 						//TODO - updateKunde only when the customer is modified - performance issue??
-						
-						//TODO ks.updateKunde
-						Adresa adresa = new Adresa(txtFldStradaKundeKundeUI.getText(), txtFldNummerStrKundeUI.getText(),
-								txtFldPLZKundeKundeUI.getText(),txtFldLocalitateKundeKundeUI.getText(),txtFldTaraKundeKundeUI.getText());
-						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText(), txtFldNrCtrKundeUI.getText(), 
-								txtFldActeAditionaleKundeUI.getText(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString(),
-								textAreaContactClientKundeUI.getText(), txtFldCUIKundeKundeUI.getText(), txtFldNrONRCClientKundeUI.getText(), adresa);
-						Kundedomain tmp = ks.updateKunde(selectedKunde.getId(), kundeNou);
-						
+						int result = ks.updateKunde(selectedKunde.getId(), kundeNou);
+
 						//TODO Success Meldung anzeigen
-						System.out.println("Button edit pressed");
-						System.out.println(selectedKunde.getId());
-						
+						if(result == 1){
+							setMessageBar("Client actualizat", None);
+						}else{
+							setMessageBar("Clientul nu a putut fi actualizat", Error);
+						}
+							
+//						System.out.println("Button edit pressed");
+//						System.out.println(selectedKunde.getId());		
 					}
+					//refresh list after update or create new customer
+					ArrayList<Kundedomain> allKunden = ks.getAllKunden();
 					DBverbindung.dbdisconect();
+					listKundenInDB.setListData(allKunden.toArray());
 				}
 				
 				//clear all fields after save
@@ -1109,13 +1123,19 @@ public class MainUI extends JFrame {
 	
 //Hilfsmethoden
 	//get selected Customer
+	/**
+	 * get selected customer
+	 * @return selected customer - object typ - Kundedomain
+	 */
 	private Kundedomain getSelectedCustomer(){
 		Object selectedItem = listKundenInDB.getSelectedValue();
 		selectedKunde = (Kundedomain) selectedItem;		
 		return selectedKunde;
 	}
 	
-	//clear all fields from customer UI
+	/**
+	 * clear all fields from customer UI
+	 */
 	private void clearCustomerUI(){
 		txtFldDenumireClientKundeUI.setText(null);
 		txtFldNrCtrKundeUI.setText(null);
@@ -1131,6 +1151,38 @@ public class MainUI extends JFrame {
 		txtFldTaraKundeKundeUI.setText("Romania");
 	}
 	
+	/**
+	 * set message bar
+	 */
+	private void setMessageBar(String message,String state){
+		Color error = new Color(224,33,39);
+		Color none = new Color(0,0,0);
+		Color color = new Color(237,237,237);
+		
+		if(state == "Error"){
+			color = error;
+		}else if(state == "None"){
+			color = none;
+		}
+		
+		lblMessageBarMainUI.setText(message);
+		lblMessageBarMainUI.setForeground(color);
+
+	}
+	
+	/**
+	 * clear message bar
+	 */
+	private void clearMessageBar(){
+		lblMessageBarMainUI.setText(null);
+	}
+	
+	
+	/**
+	 * keine Ahnung was das ist
+	 * @param component
+	 * @param popup
+	 */
 	private static void addPopup(Component component, final JPopupMenu popup) {
 		component.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
