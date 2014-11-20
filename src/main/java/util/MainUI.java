@@ -84,7 +84,7 @@ public class MainUI extends JFrame {
 	private JTextArea textAreaContactDebitorUI;
 	private JScrollPane scrollPaneActiuniDebitorUI;
 	private JTextArea textAreaActiuniDebitorUI;
-	private JLabel lblMessageBarMainUI;
+	private static JLabel lblMessageBarMainUI;
 	
 	private Kundedomain selectedKunde;
 	private String angeklickteButton;
@@ -1161,8 +1161,10 @@ public class MainUI extends JFrame {
 		
 		if(state == "Error"){
 			color = error;
+			(new Thread(new ParallelThread())).start();
 		}else if(state == "None"){
 			color = none;
+			(new Thread(new ParallelThread())).start();
 		}
 		
 		lblMessageBarMainUI.setText(message);
@@ -1173,7 +1175,7 @@ public class MainUI extends JFrame {
 	/**
 	 * clear message bar
 	 */
-	private void clearMessageBar(){
+	public static void clearMessageBar(){
 		lblMessageBarMainUI.setText(null);
 	}
 	
@@ -1201,3 +1203,4 @@ public class MainUI extends JFrame {
 		});
 	}
 }
+
