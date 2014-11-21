@@ -414,8 +414,9 @@ public class MainUI extends JFrame {
 				mainUI.setVisible(true);
 				kundeUI.setVisible(false);
 				frmArcSolutions.setTitle("ARC Solutions");
+				boolean updateFlag = false;
 				
-				//save or edit/update a new customer
+				//save or edit/update a customer
 				if(!(txtFldDenumireClientKundeUI.getText().isEmpty() || txtFldNrCtrKundeUI.getText().isEmpty())){
 					System.out.println(txtFldDenumireClientKundeUI.getText());
 					Adresa adresa = new Adresa(txtFldStradaKundeKundeUI.getText(), txtFldNummerStrKundeUI.getText(),
@@ -429,16 +430,24 @@ public class MainUI extends JFrame {
 						//create kunde
 						int result = ks.createKunde(kundeNou);
 
-						//TODO Success Meldung anzeigen
+						//TODO show Success Messages - move messages into message file
+						if(result == 1){
+							setMessageBar("Clientul a fost creat", None);
+							updateFlag = true;
+						}else{
+							setMessageBar("Clientul nu a putut fi creat", Error);
+						}
+						
 //						System.out.println("Button create pressed");
 					}else if(angeklickteButton.equals("btnEditeazaClient")){
 						//update kunde
 						//TODO - updateKunde only when the customer is modified - performance issue??
 						int result = ks.updateKunde(selectedKunde.getId(), kundeNou);
 
-						//TODO Success Meldung anzeigen
+						//TODO show Success Messages - move messages into message file
 						if(result == 1){
-							setMessageBar("Client actualizat", None);
+							setMessageBar("Clientul a fost actualizat", None);
+							updateFlag = true;
 						}else{
 							setMessageBar("Clientul nu a putut fi actualizat", Error);
 						}
@@ -447,15 +456,18 @@ public class MainUI extends JFrame {
 //						System.out.println(selectedKunde.getId());		
 					}
 					//refresh list after update or create new customer
-					ArrayList<Kundedomain> allKunden = ks.getAllKunden();
+					//only if update/create was successfully processed 
+					if(updateFlag){
+						ArrayList<Kundedomain> allKunden = ks.getAllKunden();
+						listKundenInDB.setListData(allKunden.toArray());
+					}
 					DBverbindung.dbdisconect();
-					listKundenInDB.setListData(allKunden.toArray());
 				}
 				
 				//clear all fields after save
-				//TODO we have to clear only if save was successfully
-				//TODO refresh list of customer after update and after create - we need that once
-				clearCustomerUI();
+				//clear only if save was successfully
+				if(updateFlag)
+					clearCustomerUI();
 			}
 		});
 		btnSalveazaClientKundeUI.setBounds(541, 532, 151, 23);

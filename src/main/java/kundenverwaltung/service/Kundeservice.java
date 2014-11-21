@@ -104,16 +104,16 @@ public class Kundeservice {
 	 */
 	public int createKunde(Kundedomain kunde){
 		Statement st = null;
-		int resUpdateKunde = -1;
+		int resInsertKunde = -1;
 		int resAdr = -1;
 //		DBverbindung.dbconnect();
 		try{
 			st = DBverbindung.getConn().createStatement();
-			resUpdateKunde = st.executeUpdate("INSERT INTO kunde (`Name`, `Kontraktnr`, `Actaditional`, `Valabilitatectr`, `ContactClient`, `Cui`, `NrONRC`) VALUES "
+			resInsertKunde = st.executeUpdate("INSERT INTO kunde (`Name`, `Kontraktnr`, `Actaditional`, `Valabilitatectr`, `ContactClient`, `Cui`, `NrONRC`) VALUES "
 					+ "('"+kunde.getDenumireClient().toString()+"', '"+ kunde.getNrContract().toString()+"', '" + kunde.getActeAditionale().toString() 
 					+ "', '"+kunde.getValabilitateCtr().toString()+"', '"+ kunde.getContactClient().toString()+"', '"+ kunde.getCui().toString()+"', '"+ kunde.getNrONRC().toString()+"')");
 			
-			if(resUpdateKunde == 1) {
+			if(resInsertKunde == 1) {
 				ResultSet res = st.executeQuery("SELECT ID from kunde where "
 						+ "Name = '"+kunde.getDenumireClient()+"' and "
 						+ "Kontraktnr = '"+kunde.getNrContract()+ "' and "

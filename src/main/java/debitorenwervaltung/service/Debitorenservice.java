@@ -64,10 +64,30 @@ public class Debitorenservice {
 				tmpDebitoren.setListActiuni(tmp);
 				
 			}
-			}catch (Exception ex){
-				System.out.println(ex.getMessage());
-			}
+		}catch (Exception ex){
+			System.out.println(ex.getMessage());
+		}
+	}
+	
+	/**
+	 * create debitor
+	 * @param debitor
+	 * @param kundeId
+	 * @return
+	 */
+	public int createDebitor(Debitorendomain debitor, int kundeId){
+		Statement st = null;
+		int resUpdateKunde = -1;
 		
+		try{
+			st = DBverbindung.getConn().createStatement();
+//			resUpdateKunde = 
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+			System.out.println(st.toString());
+		}
+		
+		return 1;
 	}
 
 }
