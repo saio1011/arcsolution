@@ -1192,6 +1192,7 @@ public class MainUI extends JFrame {
 	}
 	
 	
+	
 	/**
 	 * keine Ahnung was das ist
 	 * @param component
