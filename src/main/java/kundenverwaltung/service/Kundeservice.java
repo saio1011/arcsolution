@@ -20,10 +20,12 @@ public class Kundeservice {
 	 * @return array with all customers
 	 */
 	public ArrayList<Kundedomain> getAllKunden(){
+		Statement st = null;
+		Statement stAdr = null;
 		ArrayList<Kundedomain> kunden = new ArrayList<Kundedomain>();
 //		DBverbindung.dbconnect();
 		try{
-			Statement st = DBverbindung.getConn().createStatement();
+			st = DBverbindung.getConn().createStatement();
 			ResultSet res = st.executeQuery("SELECT * FROM kunde"); 
 			while (res.next()) {
 				int iD = res.getInt("ID"); 
@@ -36,18 +38,26 @@ public class Kundeservice {
 				String nrONRC = res.getString("NrONRC");
 				Adresa adresa = new Adresa();
 				
-				Statement stAdr = DBverbindung.getConn().createStatement();
+				stAdr = DBverbindung.getConn().createStatement();
 				ResultSet resAdresa = stAdr.executeQuery("SELECT * FROM adresaClient where ID_Client = \"" + iD + "\"");
 				while(resAdresa.next()){
 					adresa = new Adresa(resAdresa.getString("Strada"), resAdresa.getString("Nummer"), resAdresa.getString("CodPostal"), 
 							resAdresa.getString("Oras"), resAdresa.getString("Country"));
 				}
-			
-				Kundedomain tmp = new Kundedomain(iD, name, kontraktNr, actaditional, valabilitateCtr, contactCl, cui, nrONRC, adresa);
+				stAdr.close();
 				
+				Kundedomain tmp = new Kundedomain(iD, name, kontraktNr, actaditional, valabilitateCtr, contactCl, cui, nrONRC, adresa);		
 				kunden.add(tmp);
 			}
+			st.close();
 		}catch (Exception ex){
+			try {
+				st.close();
+				stAdr.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			System.out.println(ex.getMessage());
 		}
 		
@@ -62,10 +72,12 @@ public class Kundeservice {
 	 * @return array with customers
 	 */
 	public ArrayList<Kundedomain> findKundenByName(String spalte, String nameField){
+		Statement st = null;
+		Statement stAdr = null;
 		ArrayList<Kundedomain> kunden = new ArrayList<Kundedomain>();
 //		DBverbindung.dbconnect();
 		try{
-			Statement st = DBverbindung.getConn().createStatement();
+			st = DBverbindung.getConn().createStatement();
 			ResultSet res = st.executeQuery("SELECT * FROM kunde where "+ spalte + " like\""+ nameField + "%\""); 
 			while (res.next()) {
 				int iD = res.getInt("ID"); 
@@ -78,18 +90,26 @@ public class Kundeservice {
 				String nrONRC = res.getString("NrONRC");
 				Adresa adresa = new Adresa();
 				
-				Statement stAdr = DBverbindung.getConn().createStatement();
+				stAdr = DBverbindung.getConn().createStatement();
 				ResultSet resAdresa = stAdr.executeQuery("SELECT * FROM adresaClient where ID_Client = \"" + iD + "\"");
 				while(resAdresa.next()){
 					adresa = new Adresa(resAdresa.getString("Strada"), resAdresa.getString("Nummer"), resAdresa.getString("CodPostal"), 
 							resAdresa.getString("Oras"), resAdresa.getString("Country"));
 				}
+				stAdr.close();
 			
 				Kundedomain tmp = new Kundedomain(iD, name, kontraktNr, actaditional, valabilitateCtr, contactCl, cui, nrONRC, adresa);
-				
 				kunden.add(tmp);
 			}
+			st.close();
 		}catch (Exception ex){
+			try {
+				st.close();
+				stAdr.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			System.out.println(ex.getMessage());
 		}
 		
@@ -103,44 +123,48 @@ public class Kundeservice {
 	 * @return resAdr - it must be 1 in success case
 	 */
 	public int createKunde(Kundedomain kunde){
+		java.sql.Connection connection = null;
 		Statement st = null;
 		int resInsertKunde = -1;
 		int resAdr = -1;
 //		DBverbindung.dbconnect();
 		try{
-			st = DBverbindung.getConn().createStatement();
+			connection = DBverbindung.getConn();
+			connection.setAutoCommit(false);
+			st = connection.createStatement(Statement.CLOSE_ALL_RESULTS, Statement.RETURN_GENERATED_KEYS);
 			resInsertKunde = st.executeUpdate("INSERT INTO kunde (`Name`, `Kontraktnr`, `Actaditional`, `Valabilitatectr`, `ContactClient`, `Cui`, `NrONRC`) VALUES "
 					+ "('"+kunde.getDenumireClient().toString()+"', '"+ kunde.getNrContract().toString()+"', '" + kunde.getActeAditionale().toString() 
-					+ "', '"+kunde.getValabilitateCtr().toString()+"', '"+ kunde.getContactClient().toString()+"', '"+ kunde.getCui().toString()+"', '"+ kunde.getNrONRC().toString()+"')");
+					+ "', '"+kunde.getValabilitateCtr().toString()+"', '"+ kunde.getContactClient().toString()+"', '"+ kunde.getCui().toString()+"', '"+ kunde.getNrONRC().toString()+"')",Statement.RETURN_GENERATED_KEYS);
+		
+			int counter = 0;
+			int idKunde = -1;
+			ResultSet generatedKeys = st.getGeneratedKeys();
+		        if(generatedKeys.next()){
+		        	idKunde = generatedKeys.getInt(1);
+		        	counter++;
+		            System.out.println("ID nou: " + generatedKeys.getInt(1));    
+		        }
 			
 			if(resInsertKunde == 1) {
-				ResultSet res = st.executeQuery("SELECT ID from kunde where "
-						+ "Name = '"+kunde.getDenumireClient()+"' and "
-						+ "Kontraktnr = '"+kunde.getNrContract()+ "' and "
-						+ "Actaditional = '" + kunde.getActeAditionale()+"' and "
-						+ "Cui = '" + kunde.getCui() + "' and "
-						+ "NrONRC = '" +kunde.getNrONRC() + "'");
-				
-				int counter = 0;	
-				int idKunde = -1;
-				while (res.next()){
-					idKunde =  res.getInt("ID");
-					counter ++;
-					System.out.println(idKunde);
-				}
-				
 				if(counter == 1 && idKunde != -1){
 					resAdr = st.executeUpdate("INSERT INTO adresaCLient (`Strada`, `Nummer`, `CodPostal`, `Oras`, `Country`, `ID_Client`) VALUES "
 							+ "('" +kunde.getAdresa().getStrada()+"', '"+kunde.getAdresa().getNummer()+"', '"+ kunde.getAdresa().getCodPostal()
 							+"', '"+kunde.getAdresa().getOras()+"', '"+kunde.getAdresa().getCountry()+"', '"+idKunde+"')");
 				}else{
-					//TODO 
-					//error handling - counter > 1 oder idKunde = -1
+					throw new Exception("Create customer failed");
 				}
 			}
-
+			connection.commit();
+			st.close();
 			
 		}catch (Exception ex){
+			try {
+				connection.rollback();
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			System.out.println(ex.getMessage());
 			System.out.println(st.toString());
 		}
@@ -179,9 +203,17 @@ public class Kundeservice {
 											+	"Oras = '" + kunde.getAdresa().getOras() + "', "
 											+	"Country = '" + kunde.getAdresa().getCountry() + "'"
 												+ " WHERE ID_Client = " + id);
+			}else{
+				throw new Exception("Update customer failed");
 			}
-			
+			st.close();
 		}catch(Exception e){
+			try {
+				st.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			System.out.println(e.getMessage());
 			System.out.println(st.toString());
 		} 
