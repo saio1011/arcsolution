@@ -3,8 +3,8 @@ import util.*;
 
 /**
  * @author mihaisava
- *		private atribute	"Id"
- *		public atribute 	"id"
+ *		private attribute	"Id"
+ *		public attribute 	"id"
  */
 public class Kundedomain {
 	private int Id;

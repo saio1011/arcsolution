@@ -3,117 +3,109 @@ package debitorenwervaltung.domain;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import util.*;
 
+/**
+ * @author mihaisava
+ * 		privat attribute "Id"
+ * 		public attribute "id"
+ */
 public class Debitorendomain {
 	
-	private int IDDeb;
-	private String Name;
-	private double ValoareCranta;
-	private Date DataNotificare;
-	private Date DataConfPrimire;
-	private Date DataNotifUltimativa;
-	private Date DataNotifConfPrimire;
-//	private String Beschreibung;
-//	private String DataBeschreibung;
-//	private String NumeContact;
-//	private String TelContact;
-//	private String AdresaContact;
-	private int IDKunde;
-//	private int IDContact;
-//	private int IDActiuni;
-//	private int IDAdresa;
-	public ArrayList<Actiuni> listActiuni;
-	public ArrayList<Contact> listContact;
-	public ArrayList<Adresa> listAdresa;
-	public Debitorendomain(int iDDeb, String name, double valoareCranta,
-			Date dataNotificare, Date dataConfPrimire,
-			Date dataNotifUltimativa, Date dataNotifConfPrimire, int iDKunde) {
+	private int IdDeb;
+	private String DenumireDebitor;
+	private String Cui;
+	private String ContactDebitor;
+	private String StatusDebitor;
+	private String StatusDosar;
+	private Adresa AdresaDebitor;
+
+	public Debitorendomain(int idDeb, String denumireDebitor, String cui, String contactDebitor, String statusDebitor,
+			String statusDosar, Adresa adresaDebitor) {
 		super();
-		IDDeb = iDDeb;
-		Name = name;
-		ValoareCranta = valoareCranta;
-		DataNotificare = dataNotificare;
-		DataConfPrimire = dataConfPrimire;
-		DataNotifUltimativa = dataNotifUltimativa;
-		DataNotifConfPrimire = dataNotifConfPrimire;
-		IDKunde = iDKunde;
-	}
-	public int getIDDeb() {
-		return IDDeb;
-	}
-	public void setIDDeb(int iDDeb) {
-		IDDeb = iDDeb;
-	}
-	public String getName() {
-		return Name;
-	}
-	public void setName(String name) {
-		Name = name;
-	}
-	public double getValoareCranta() {
-		return ValoareCranta;
-	}
-	public void setValoareCranta(double valoareCranta) {
-		ValoareCranta = valoareCranta;
-	}
-	public Date getDataNotificare() {
-		return DataNotificare;
-	}
-	public void setDataNotificare(Date dataNotificare) {
-		DataNotificare = dataNotificare;
-	}
-	public Date getDataConfPrimire() {
-		return DataConfPrimire;
-	}
-	public void setDataConfPrimire(Date dataConfPrimire) {
-		DataConfPrimire = dataConfPrimire;
-	}
-	public Date getDataNotifUltimativa() {
-		return DataNotifUltimativa;
-	}
-	public void setDataNotifUltimativa(Date dataNotifUltimativa) {
-		DataNotifUltimativa = dataNotifUltimativa;
-	}
-	public Date getDataNotifConfPrimire() {
-		return DataNotifConfPrimire;
-	}
-	public void setDataNotifConfPrimire(Date dataNotifConfPrimire) {
-		DataNotifConfPrimire = dataNotifConfPrimire;
-	}
-	public int getIDKunde() {
-		return IDKunde;
-	}
-	public void setIDKunde(int iDKunde) {
-		IDKunde = iDKunde;
-	}
-	public ArrayList<Actiuni> getListActiuni() {
-		return listActiuni;
-	}
-	public void setListActiuni(Actiuni actiune) {
-		listActiuni.add(actiune);
-	}
-	public ArrayList<Contact> getListContact() {
-		return listContact;
-	}
-	public void setListContact(Contact contact) {
-		listContact.add(contact);
-	}
-	public ArrayList<Adresa> getListAdresa() {
-		return listAdresa;
-	}
-	public void setListAdresa(Adresa adresa) {
-		listAdresa.add(adresa);
+		this.IdDeb = idDeb;
+		this.DenumireDebitor = denumireDebitor;
+		this.Cui = cui;
+		this.ContactDebitor = contactDebitor;
+		this.StatusDebitor = statusDebitor;
+		this.StatusDosar = statusDosar;
+		this.AdresaDebitor = adresaDebitor;
 	}
 	
+	public Debitorendomain(String denumireDebitor, String cui, String contactDebitor, String statusDebitor,
+			String statusDosar, Adresa adresaDebitor) {
+		super();
+		this.DenumireDebitor = denumireDebitor;
+		this.Cui = cui;
+		this.ContactDebitor = contactDebitor;
+		this.StatusDebitor = statusDebitor;
+		this.StatusDosar = statusDosar;
+		this.AdresaDebitor = adresaDebitor;
+	}
+
+	public int getIdDeb() {
+		return IdDeb;
+	}
+
+	public void setIdDeb(int idDeb) {
+		IdDeb = idDeb;
+	}
+
+	public String getDenumireDebitor() {
+		return DenumireDebitor;
+	}
+
+	public void setDenumireDebitor(String denumireDebitor) {
+		DenumireDebitor = denumireDebitor;
+	}
+
+	public String getCui() {
+		return Cui;
+	}
+
+	public void setCui(String cui) {
+		Cui = cui;
+	}
+
+	public String getContactDebitor() {
+		return ContactDebitor;
+	}
+
+	public void setContactDebitor(String contactDebitor) {
+		ContactDebitor = contactDebitor;
+	}
+
+	public String getStatusDebitor() {
+		return StatusDebitor;
+	}
+
+	public void setStatusDebitor(String statusDebitor) {
+		StatusDebitor = statusDebitor;
+	}
+
+	public String getStatusDosar() {
+		return StatusDosar;
+	}
+
+	public void setStatusDosar(String statusDosar) {
+		StatusDosar = statusDosar;
+	}
+
+	//TODO 
+	//to check if is correct implemented and if is needed 
+	public Adresa getAdresaDebitor() {
+		return AdresaDebitor;
+	}
+
+	public void setAdresaDebitor(Adresa adresaDebitor) {
+		AdresaDebitor = adresaDebitor;
+	}
+
 	@Override
 	public String toString() {
-		return "Debitorendomain [IDDeb=" + IDDeb + ", Name=" + Name
-				+ ", ValoareCranta=" + ValoareCranta + ", DataNotificare="
-				+ DataNotificare + ", DataConfPrimire=" + DataConfPrimire
-				+ ", DataNotifUltimativa=" + DataNotifUltimativa
-				+ ", DataNotifConfPrimire=" + DataNotifConfPrimire
-				+ ", IDKunde=" + IDKunde + ", listActiuni=" + listActiuni
-				+ ", listContact=" + listContact + ", listAdresa=" + listAdresa
-				+ "]";
+		return "DenumireDebitor=" + DenumireDebitor + ", Cui="
+				+ Cui + ", ContactDebitor=" + ContactDebitor
+				+ ", StatusDebitor=" + StatusDebitor + ", StatusDosar="
+				+ StatusDosar;
 	}
 }
