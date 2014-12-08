@@ -85,8 +85,10 @@ public class MainUI extends JFrame {
 	private JScrollPane scrollPaneActiuniDebitorUI;
 	private JTextArea textAreaActiuniDebitorUI;
 	private static JLabel lblMessageBarMainUI;
+	private static JLabel lblMessageBarDebMainUI;
 	
 	private Kundedomain selectedKunde;
+	private Debitorendomain selectedDebtor;
 	private String angeklickteButton;
 	private JButton btnCautaDebitoriDebMainUI;
 	private JButton btnCreazaDebitorDebMainUI;
@@ -103,7 +105,7 @@ public class MainUI extends JFrame {
 	private JTextField txtFldLocalitateDebitorUI;
 	private JTextField txtFldCodPostalDebitorUI;
 	private JTextField txtFldTaraDebitorUI;
-	private JButton btnSaveDebitorUI;
+	private JButton btnSalveazaDebitorUI;
 	private JButton btnAdministreazaDebMainUI;
 	private JPanel debitorenverwaltungMainUI;
 	private JButton btnCancelBillingMainUI;
@@ -150,7 +152,7 @@ public class MainUI extends JFrame {
 	private JLabel lblStatusDebitorDebitorUI;
 	private JLabel lblStatusDosarDebitorDebitorUI;
 	private JComboBox comboBoxStatusDebitorDebitorUI;
-	private JComboBox comboBox_2;
+	private JComboBox comboBoxStatusDosarDebitorUI;
 	private JSeparator separator_1;
 	private JButton btnAfisazaActiuniDebVerwMainUI;
 	private JLabel label;
@@ -165,6 +167,9 @@ public class MainUI extends JFrame {
 	private JPanel payBillingUI;
 	private JLabel lblNewLabel_1;
 	private JButton btnCancelPayBillingUI;
+	private String chckBoxActiuneDebitorStatus;
+	private JScrollPane scrollPaneListResultsInDBDebitronVerwMainUI;
+	private JList listResultsInDbBillingMainUI;
 	
 	
 	/**
@@ -202,6 +207,9 @@ public class MainUI extends JFrame {
 		String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
 		String Error = "Error";
 		String None = "None";
+		String MsgBarMainUI = "MainUI";
+		String MsgBarDebUI = "DebUI";
+		
 		
 		
 		frmArcSolutions = new JFrame();
@@ -432,10 +440,10 @@ public class MainUI extends JFrame {
 
 						//TODO show Success Messages - move messages into message file
 						if(result == 1){
-							setMessageBar("Clientul a fost creat", None);
+							setMessageBar("Clientul a fost creat", None, MsgBarMainUI);
 							updateFlag = true;
 						}else{
-							setMessageBar("Clientul nu a putut fi creat", Error);
+							setMessageBar("Clientul nu a putut fi creat", Error, MsgBarMainUI);
 						}
 						
 //						System.out.println("Button create pressed");
@@ -446,10 +454,10 @@ public class MainUI extends JFrame {
 
 						//TODO show Success Messages - move messages into message file
 						if(result == 1){
-							setMessageBar("Clientul a fost actualizat", None);
+							setMessageBar("Clientul a fost actualizat", None, MsgBarMainUI);
 							updateFlag = true;
 						}else{
-							setMessageBar("Clientul nu a putut fi actualizat", Error);
+							setMessageBar("Clientul nu a putut fi actualizat", Error, MsgBarMainUI);
 						}
 							
 //						System.out.println("Button edit pressed");
@@ -642,13 +650,25 @@ public class MainUI extends JFrame {
 		btnCautaDebitoriDebMainUI.setBounds(29, 102, 135, 23);
 		kundeverwaltungMainUI.add(btnCautaDebitoriDebMainUI);
 		
+		//Edit debtor
 		btnEditeazaDebitorDebMainUI = new JButton("Editeaza Debitor");
 		btnEditeazaDebitorDebMainUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				kundeverwaltungMainUI.setVisible(false);
 				debitorUI.setVisible(true);
 				frmArcSolutions.setTitle("ARC Solutions - Editeaza Debitor - "+getSelectedCustomer().getDenumireClient().toString());
+				
 				//TODO - DebitorenUI Fields fill with selected Debitor values
+				txtFldDenumireDebitorDebitorUI.setText(getSelectedDebtor().getDenumireDebitor());
+				txtFldCUIDebitorDebitorUI.setText(getSelectedDebtor().getCui());
+				textAreaContactDebitorUI.setText(getSelectedDebtor().getContactDebitor());
+				comboBoxStatusDebitorDebitorUI.setSelectedItem(getSelectedDebtor().getStatusDebitor().toString());
+				comboBoxStatusDosarDebitorUI.setSelectedItem(getSelectedDebtor().getStatusDosar().toString());
+				txtFldStradaDebitorUI.setText(getSelectedDebtor().getAdresa().getStrada());
+				txtFldNumarStrDebitorUI.setText(getSelectedDebtor().getAdresa().getNummer());
+				txtFldLocalitateDebitorUI.setText(getSelectedDebtor().getAdresa().getOras());
+				txtFldCodPostalDebitorUI.setText(getSelectedDebtor().getAdresa().getCodPostal());
+				txtFldTaraDebitorUI.setText(getSelectedDebtor().getAdresa().getCountry());
 				
 				angeklickteButton = "btnEditeazaDebitorDebMainUI";
 			}
@@ -728,6 +748,14 @@ public class MainUI extends JFrame {
 		separator_3 = new JSeparator();
 		separator_3.setBounds(20, 78, 858, 12);
 		kundeverwaltungMainUI.add(separator_3);
+		
+		JSeparator separator_7 = new JSeparator();
+		separator_7.setBounds(21, 645, 450, 12);
+		kundeverwaltungMainUI.add(separator_7);
+		
+		lblMessageBarDebMainUI = new JLabel("");
+		lblMessageBarDebMainUI.setBounds(21, 656, 450, 16);
+		kundeverwaltungMainUI.add(lblMessageBarDebMainUI);
 	
 //Debitoren UI
 		debitorUI = new JPanel();
@@ -747,15 +775,7 @@ public class MainUI extends JFrame {
 				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getDenumireClient().toString());
 				
 				//clear all fields by cancel
-				txtFldDenumireDebitorDebitorUI.setText(null);
-				txtFldCodPostalDebitorUI.setText(null);
-				textAreaContactDebitorUI.setText(null);
-				textAreaActiuniDebitorUI.setText(null);
-				txtFldLocalitateDebitorUI.setText(null);
-				txtFldNumarStrDebitorUI.setText(null);
-				txtFldStradaDebitorUI.setText(null);
-				txtFldTaraDebitorUI.setText("Romania");
-				
+				clearDebitorUI();
 			}
 		});
 		debitorUI.add(btnCancelDebitorUI);
@@ -834,15 +854,15 @@ public class MainUI extends JFrame {
 		textAreaContactDebitorUI = new JTextArea();
 		scrollPaneContactDebitorUI.setViewportView(textAreaContactDebitorUI);
 		
-		btnSaveDebitorUI = new JButton("Salveaza Debitor");
-		btnSaveDebitorUI.setBounds(516, 620, 172, 29);
-		btnSaveDebitorUI.addActionListener(new ActionListener() {
+		btnSalveazaDebitorUI = new JButton("Salveaza Debitor");
+		btnSalveazaDebitorUI.setBounds(516, 620, 172, 29);
+		btnSalveazaDebitorUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//TODO - ds.createDebitor bei create aufrufen
 				//TODO - ds.updateDebitor bei edit aufrufen
 				
 				if(txtFldDenumireDebitorDebitorUI.getText().isEmpty()){
-					//
+					//TODO set and remove error state
 					System.out.println(txtFldDenumireDebitorDebitorUI.getBorder().toString());
 					txtFldDenumireDebitorDebitorUI.setBorder(BorderFactory.createLineBorder(Color.decode("#FF0000")));
 					return;
@@ -851,48 +871,48 @@ public class MainUI extends JFrame {
 				kundeverwaltungMainUI.setVisible(true);
 				debitorUI.setVisible(false);
 				frmArcSolutions.setTitle("ARC Solutions - Administreaza - "+ getSelectedCustomer().getDenumireClient().toString());
+				boolean updateFlag = false;
 				
 				//save or edit/update a new debitor
 				if(!(txtFldDenumireDebitorDebitorUI.getText().isEmpty())){
-//					DBverbindung.dbconnect();
+					Adresa adresa = new Adresa(txtFldStradaDebitorUI.getText(), txtFldNumarStrDebitorUI.getText(), txtFldCodPostalDebitorUI.getText(), txtFldLocalitateDebitorUI.getText(), txtFldTaraDebitorUI.getText());
+					Actiune actiune;
+					if(chckBoxActiuneDebitorStatus=="Selected"){
+						actiune = new Actiune(txtFldActiuneDebitorUI.getText(), textAreaActiuniDebitorUI.getText());
+					}else{
+						actiune = null;
+					}
+					Debitorendomain debitor = new Debitorendomain(txtFldDenumireDebitorDebitorUI.getText(), txtFldCUIDebitorDebitorUI.getText(), textAreaContactDebitorUI.getText(), comboBoxStatusDebitorDebitorUI.getSelectedItem().toString(), comboBoxStatusDosarDebitorUI.getSelectedItem().toString(), adresa, actiune);
+					
+					DBverbindung.dbconnect();
 					if(angeklickteButton.equals("btnCreazaDebitorDebMainUI")){
 						System.out.println("btn Creaza Debitor geclicked");
+	
+						int result = ds.createDebitor(debitor, getSelectedCustomer().getId(), chckBoxActiuneDebitorStatus);
+						
+						//TODO show Success Messages - move messages into message file
+						if(result == 1){
+							setMessageBar("Debitorul a fost creat", None, MsgBarDebUI);
+							updateFlag = true;
+						}else{
+							setMessageBar("Debitorul nu a putut fi creat", Error, MsgBarDebUI);
+						}
 					}else if(angeklickteButton.equals("btnEditeazaDebitorDebMainUI")){
 						System.out.println("btn Edit Debitor geclicked");
 					}
-//					DBverbindung.dbdisconect();
-				}
-				
-				/*
-				 * 
-				 * mainUI.setVisible(true);
-				kundeUI.setVisible(false);
-				frame.setTitle("ARC Solutions");
-				
-				//save or edit/update a new customer
-				if(!(txtFldDenumireClientKundeUI.getText().isEmpty() || txtFldNrCtrKundeUI.getText().isEmpty())){
-					DBverbindung.dbconnect();
-					if(angeklickteButton.equals("btnCreazaClient")){
-						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText().toString(), txtFldNrCtrKundeUI.getText().toString(), 
-								txtFldActeAditionaleKundeUI.getText().toString(), txtFldValabilitateCtrKundeUI.getText().toString());
-						Kundedomain tmp = ks.createKunde(kundeNou);
-						//TODO Success Meldung anzeigen
-						
-//						System.out.println("Button create pressed");
-					}else if(angeklickteButton.equals("btnEditeazaClient")){
-						//TODO - updateKunde only when the customer is modified
-						
-						//TODO ks.updateKunde
-						Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText().toString(), txtFldNrCtrKundeUI.getText().toString(), 
-								txtFldActeAditionaleKundeUI.getText().toString(), txtFldValabilitateCtrKundeUI.getText().toString());
-						Kundedomain tmp = ks.updateKunde(selectedKunde.getID(), kundeNou);
-						System.out.println("Button edit pressed");
-						
+					if(updateFlag){
+						ArrayList<Debitorendomain> allDebitoren = ds.getAllDebitorenByKundenId(selectedKunde.getId());
+						listDebitorenInDbDebMainUI.setListData(allDebitoren.toArray());
 					}
-					DBverbindung.dbdisconect();*/
+					DBverbindung.dbdisconect();
 				}
+				//clear all fields after save
+				//clear only if save was successfully
+				if(updateFlag)
+					clearDebitorUI();
+			}
 		});
-		debitorUI.add(btnSaveDebitorUI);
+		debitorUI.add(btnSalveazaDebitorUI);
 		
 		JSeparator separator = new JSeparator();
 		separator.setBounds(52, 348, 820, 12);
@@ -925,9 +945,9 @@ public class MainUI extends JFrame {
 		comboBoxStatusDebitorDebitorUI.setBounds(726, 109, 146, 27);
 		debitorUI.add(comboBoxStatusDebitorDebitorUI);
 		
-		comboBox_2 = new JComboBox(statusDosarDebitorElement);
-		comboBox_2.setBounds(726, 148, 146, 27);
-		debitorUI.add(comboBox_2);
+		comboBoxStatusDosarDebitorUI = new JComboBox(statusDosarDebitorElement);
+		comboBoxStatusDosarDebitorUI.setBounds(726, 148, 146, 27);
+		debitorUI.add(comboBoxStatusDosarDebitorUI);
 		
 		lblDescriptionActiuneDebitorUI = new JLabel("Descriere Actiune");
 		lblDescriptionActiuneDebitorUI.setBounds(130, 400, 121, 16);
@@ -948,6 +968,7 @@ public class MainUI extends JFrame {
 				if(e.getStateChange() == ItemEvent.SELECTED){
 					txtFldActiuneDebitorUI.setEnabled(true);
 					textAreaActiuniDebitorUI.setEnabled(true);
+					chckBoxActiuneDebitorStatus = "Selected";
 				}else {
 					txtFldActiuneDebitorUI.setEnabled(false);
 					textAreaActiuniDebitorUI.setEnabled(false);
@@ -1021,12 +1042,12 @@ public class MainUI extends JFrame {
 		comboBox.setBounds(335, 96, 105, 27);
 		debitorenverwaltungMainUI.add(comboBox);
 		
-		JScrollPane scrollPaneListFacturiInDB = new JScrollPane();
-		scrollPaneListFacturiInDB.setBounds(77, 315, 795, 273);
-		debitorenverwaltungMainUI.add(scrollPaneListFacturiInDB);
+		scrollPaneListResultsInDBDebitronVerwMainUI = new JScrollPane();
+		scrollPaneListResultsInDBDebitronVerwMainUI.setBounds(77, 315, 795, 273);
+		debitorenverwaltungMainUI.add(scrollPaneListResultsInDBDebitronVerwMainUI);
 		
-		JList listFacturiInDbBillingMainUI = new JList();
-		scrollPaneListFacturiInDB.setViewportView(listFacturiInDbBillingMainUI);
+		listResultsInDbBillingMainUI = new JList();
+		scrollPaneListResultsInDBDebitronVerwMainUI.setViewportView(listResultsInDbBillingMainUI);
 		
 		frmArcSolutions.getContentPane().add(debitorenverwaltungMainUI, "name_17654855574017");
 		
@@ -1035,6 +1056,11 @@ public class MainUI extends JFrame {
 		debitorenverwaltungMainUI.add(separator_1);
 		
 		btnAfisazaActiuniDebVerwMainUI = new JButton("Afisaza Actiuni");
+		btnAfisazaActiuniDebVerwMainUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				listResultsInDbBillingMainUI.setListData(getSelectedDebtor().getActiuni().toArray());
+			}
+		});
 		btnAfisazaActiuniDebVerwMainUI.setBounds(148, 218, 153, 29);
 		debitorenverwaltungMainUI.add(btnAfisazaActiuniDebVerwMainUI);
 		
@@ -1145,6 +1171,12 @@ public class MainUI extends JFrame {
 		return selectedKunde;
 	}
 	
+	private Debitorendomain getSelectedDebtor(){
+		Object selectedItem = listDebitorenInDbDebMainUI.getSelectedValue();
+		selectedDebtor = (Debitorendomain) selectedItem;
+		return selectedDebtor;
+	}
+	
 	/**
 	 * clear all fields from customer UI
 	 */
@@ -1164,9 +1196,27 @@ public class MainUI extends JFrame {
 	}
 	
 	/**
+	 * clear all fields from debtor UI
+	 */
+	private void clearDebitorUI(){
+		txtFldDenumireDebitorDebitorUI.setText(null);
+		txtFldCUIDebitorDebitorUI.setText(null);
+		textAreaContactDebitorUI.setText(null);
+		comboBoxStatusDebitorDebitorUI.setSelectedItem("Activ");
+		comboBoxStatusDosarDebitorUI.setSelectedItem("Amiabil");
+		txtFldActiuneDebitorUI.setText(null);
+		textAreaActiuniDebitorUI.setText(null);
+		txtFldLocalitateDebitorUI.setText(null);
+		txtFldCodPostalDebitorUI.setText(null);
+		txtFldNumarStrDebitorUI.setText(null);
+		txtFldStradaDebitorUI.setText(null);
+		txtFldTaraDebitorUI.setText("Romania");
+	}
+	
+	/**
 	 * set message bar
 	 */
-	private void setMessageBar(String message,String state){
+	private void setMessageBar(String message,String state, String MsgBar){
 		Color error = new Color(224,33,39);
 		Color none = new Color(0,0,0);
 		Color color = new Color(237,237,237);
@@ -1179,9 +1229,13 @@ public class MainUI extends JFrame {
 			(new Thread(new ParallelThread())).start();
 		}
 		
-		lblMessageBarMainUI.setText(message);
-		lblMessageBarMainUI.setForeground(color);
-
+		if(MsgBar == "MainUI"){
+			lblMessageBarMainUI.setText(message);
+			lblMessageBarMainUI.setForeground(color);
+		}else if(MsgBar == "DebUI"){
+			lblMessageBarDebMainUI.setText(message);
+			lblMessageBarDebMainUI.setForeground(color);
+		}
 	}
 	
 	/**
@@ -1189,6 +1243,7 @@ public class MainUI extends JFrame {
 	 */
 	public static void clearMessageBar(){
 		lblMessageBarMainUI.setText(null);
+		lblMessageBarDebMainUI.setText(null);
 	}
 	
 	

@@ -18,10 +18,12 @@ public class Debitorendomain {
 	private String ContactDebitor;
 	private String StatusDebitor;
 	private String StatusDosar;
-	private Adresa AdresaDebitor;
+	private Adresa Adresa;
+	private Actiune Actiune;
+	private ArrayList<Actiune> Actiuni;
 
 	public Debitorendomain(int idDeb, String denumireDebitor, String cui, String contactDebitor, String statusDebitor,
-			String statusDosar, Adresa adresaDebitor) {
+			String statusDosar, Adresa adresa, Actiune actiune) {
 		super();
 		this.IdDeb = idDeb;
 		this.DenumireDebitor = denumireDebitor;
@@ -29,18 +31,33 @@ public class Debitorendomain {
 		this.ContactDebitor = contactDebitor;
 		this.StatusDebitor = statusDebitor;
 		this.StatusDosar = statusDosar;
-		this.AdresaDebitor = adresaDebitor;
+		this.Adresa = adresa;
+		this.Actiune = actiune;
+	}
+	
+	public Debitorendomain(int idDeb, String denumireDebitor, String cui, String contactDebitor, String statusDebitor,
+			String statusDosar, Adresa adresa, ArrayList<Actiune> actiuni) {
+		super();
+		this.IdDeb = idDeb;
+		this.DenumireDebitor = denumireDebitor;
+		this.Cui = cui;
+		this.ContactDebitor = contactDebitor;
+		this.StatusDebitor = statusDebitor;
+		this.StatusDosar = statusDosar;
+		this.Adresa = adresa;
+		this.Actiuni = actiuni;
 	}
 	
 	public Debitorendomain(String denumireDebitor, String cui, String contactDebitor, String statusDebitor,
-			String statusDosar, Adresa adresaDebitor) {
+			String statusDosar, Adresa adresa, Actiune actiune) {
 		super();
 		this.DenumireDebitor = denumireDebitor;
 		this.Cui = cui;
 		this.ContactDebitor = contactDebitor;
 		this.StatusDebitor = statusDebitor;
 		this.StatusDosar = statusDosar;
-		this.AdresaDebitor = adresaDebitor;
+		this.Adresa = adresa;
+		this.Actiune = actiune;
 	}
 
 	public int getIdDeb() {
@@ -93,12 +110,29 @@ public class Debitorendomain {
 
 	//TODO 
 	//to check if is correct implemented and if is needed 
-	public Adresa getAdresaDebitor() {
-		return AdresaDebitor;
+	public Adresa getAdresa() {
+		return Adresa;
 	}
 
-	public void setAdresaDebitor(Adresa adresaDebitor) {
-		AdresaDebitor = adresaDebitor;
+	public void setAdresa(Adresa adresaDebitor) {
+		Adresa = adresaDebitor;
+	}
+
+	public Actiune getActiune() {
+		return Actiune;
+	}
+
+	public void setActiune(Actiune actiune) {
+		Actiune = actiune;
+	}
+	
+
+	public ArrayList<Actiune> getActiuni() {
+		return Actiuni;
+	}
+
+	public void setActiuni(ArrayList<Actiune> actiuni) {
+		Actiuni = actiuni;
 	}
 
 	@Override
