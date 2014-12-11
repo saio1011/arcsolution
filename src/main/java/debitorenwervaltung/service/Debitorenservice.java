@@ -101,7 +101,6 @@ public class Debitorenservice {
 	 * @param kundeId
 	 * @return
 	 */
-	//TODO extend signatur with actiuni flag
 	public int createDebitor(Debitorendomain debitor, int kundeId, String chckBoxActiuneDebitorStatus){
 		java.sql.Connection connection = null;
 		Statement st = null;
@@ -139,6 +138,8 @@ public class Debitorenservice {
 				}else{
 					throw new Exception("Create debitor failed");
 				}
+			}else{
+				throw new Exception("Create debitor failed");
 			}
 			connection.commit();
 			st.close();
@@ -158,6 +159,55 @@ public class Debitorenservice {
 		}else{
 			return resAdresaDebitor;
 		}
+	}
+	
+	/**
+	 * update debtor
+	 */
+	public int updateDebitor(int id, Debitorendomain debitor){
+		java.sql.Connection connection = null;
+		Statement st = null;
+		int res = -1;
+		int resAdr = -1;
+		try{
+			connection = DBverbindung.getConn();
+			connection.setAutoCommit(false);
+			st = connection.createStatement();
+			res = st.executeUpdate("UPDATE debitor "
+									+ "SET DenumireDebitor = '" + debitor.getDenumireDebitor() + "', "
+									+ 	"Cui = '" + debitor.getCui() + "', "
+									+	"ContactDebitor = '" + debitor.getContactDebitor() + "', "
+									+	"StatusDebitor = '" + debitor.getStatusDebitor() + "', "
+									+	"StatusDosar = '" + debitor.getStatusDosar() + "'"
+										+ " WHERE IdDeb = " + id );
+			if(res == 1){
+				resAdr = st.executeUpdate("UPDATE adresaDebitor "
+						+ "SET Strada = '" + debitor.getAdresa().getStrada() + "', "
+						+ 	"Nummer = '" + debitor.getAdresa().getNummer() + "', "
+						+	"CodPostal = '" + debitor.getAdresa().getCodPostal() + "', "
+						+	"Oras = '" + debitor.getAdresa().getOras() + "', "
+						+	"Country = '" + debitor.getAdresa().getCountry() + "'"
+							+ " WHERE ID_Debitor = " + id);	
+				if(resAdr != 1){
+					throw new Exception("Update debitor failed");
+				}
+			}else{
+				throw new Exception("Update debitor failed");
+			}
+			connection.commit();
+			st.close();
+		}catch(Exception ex){
+			try {
+				connection.rollback();
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(ex.getMessage());
+		}
+		
+		return resAdr;
 	}
 
 }

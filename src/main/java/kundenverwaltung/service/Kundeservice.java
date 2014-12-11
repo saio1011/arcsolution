@@ -153,6 +153,8 @@ public class Kundeservice {
 				}else{
 					throw new Exception("Create customer failed");
 				}
+			}else{
+				throw new Exception("Create customer failed");
 			}
 			connection.commit();
 			st.close();
@@ -181,11 +183,14 @@ public class Kundeservice {
 	 * @return resAdr - it must be 1 in success case 
 	 */
 	public int updateKunde(int id,Kundedomain kunde){
+		java.sql.Connection connection = null;
 		Statement st = null;
 		int res = -1;
 		int resAdr = -1;
 		try{
-			st = DBverbindung.getConn().createStatement();
+			connection = DBverbindung.getConn();
+			connection.setAutoCommit(false);
+			st = connection.createStatement();
 			res = st.executeUpdate("UPDATE kunde "
 										+ "SET Name = '" + kunde.getDenumireClient() + "', "
 										+ 	"Kontraktnr = '"+ kunde.getNrContract() + "', "
@@ -203,12 +208,17 @@ public class Kundeservice {
 											+	"Oras = '" + kunde.getAdresa().getOras() + "', "
 											+	"Country = '" + kunde.getAdresa().getCountry() + "'"
 												+ " WHERE ID_Client = " + id);
+				if(resAdr != 1){
+					throw new Exception("Update customer failed");
+				}
 			}else{
 				throw new Exception("Update customer failed");
 			}
+			connection.commit();
 			st.close();
 		}catch(Exception e){
 			try {
+				connection.rollback();
 				st.close();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
