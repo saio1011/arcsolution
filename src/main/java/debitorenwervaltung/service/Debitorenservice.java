@@ -15,7 +15,7 @@ public class Debitorenservice {
 	/**
 	 * get all debtors 
 	 * @param kundeID
-	 * @return array with all debtors
+	 * @return array with all debtors by idKunde
 	 */
 	public ArrayList<Debitorendomain> getAllDebitorenByKundenId(int kundeID){
 		Statement st = null;
@@ -74,26 +74,6 @@ public class Debitorenservice {
 //		DBverbindung.dbdisconect();
 		return debitori;
 	}
-	
-//	public void getAllActiunibyDebitor(int idDebit){
-//		try{
-//			Statement st = DBverbindung.getConn().createStatement();
-//			ResultSet res = st.executeQuery("SELECT * FROM actiuni where ID_Deb = " + idDebit); 
-//			while (res.next()) {
-//				int IDActiuni = res.getInt("ID_Actiuni"); 
-//				String Beschreibung = res.getString("Beschreibung");
-//				Date DataBeschreibung = res.getDate("Datum");
-//				int ID_Deb = res.getInt("ID_Deb"); 
-//				
-//				Actiuni tmp = new Actiuni(IDActiuni, Beschreibung, DataBeschreibung, ID_Deb);
-//				
-//				tmpDebitoren.setListActiuni(tmp);
-//				
-//			}
-//		}catch (Exception ex){
-//			System.out.println(ex.getMessage());
-//		}
-//	}
 	
 	/**
 	 * create debitor
@@ -208,6 +188,72 @@ public class Debitorenservice {
 		}
 		
 		return resAdr;
+	}
+	
+	/**
+	 * insert new actiune
+	 * 
+	 * @param actiune
+	 * @param idDeb
+	 * @return 1 if insert was successfully 
+	 */
+	public int createActiune(Actiune actiune, int idDeb){
+		java.sql.Connection connection = null;
+		Statement st = null;
+		int resInsertActiune = -1;
+		
+		try{
+			connection = DBverbindung.getConn();
+			connection.setAutoCommit(false);
+			st = connection.createStatement();
+			resInsertActiune = st.executeUpdate("INSERT INTO actiuni (`KurzBeschreibung`, `Beschreibung`, `ID_Deb`) VALUES "
+					+ "('" + actiune.getKurzBeschreibung() + "', '"+ actiune.getBeschreibung()
+					+"', '" + idDeb+"')");
+			if(resInsertActiune == 1){
+				connection.commit();
+				st.close();
+			}else{
+				throw new Exception("Insert Actiune failed");
+			}
+		}catch (Exception e) {
+			try {
+				connection.rollback();
+				st.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.out.println(e.getMessage());
+		}
+		return resInsertActiune;
+	}
+	
+	/**
+	 * get all Actiuni by DebitorID
+	 * @param idDeb
+	 * @return array with all actiuni 
+	 */
+	public ArrayList<Actiune> getAllActiuniByDebitorId(int idDeb){
+		Statement st = null;
+		ArrayList<Actiune> actiuni = new ArrayList<Actiune>();
+		
+		try{
+			st = DBverbindung.getConn().createStatement();
+			ResultSet res = st.executeQuery("SELECT * FROM actiuni where ID_Deb = " + idDeb); 
+			while (res.next()) {
+				int IDActiuni = res.getInt("ID_Actiuni"); 
+				String kurzBeschreibung = res.getString("KurzBeschreibung");
+				String beschreibung = res.getString("Beschreibung");
+	//			int ID_Deb = res.getInt("ID_Deb"); 
+	
+				Actiune actiune = new Actiune(IDActiuni, kurzBeschreibung, beschreibung);
+				actiuni.add(actiune);		
+			}
+			st.close();
+		}catch (Exception ex){
+			System.out.println(ex.getMessage());
+		}
+		return actiuni;
 	}
 
 }

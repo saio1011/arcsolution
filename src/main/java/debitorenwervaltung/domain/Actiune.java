@@ -56,6 +56,11 @@ public class Actiune {
 
 	@Override
 	public String toString() {
-		return "KurzBeschreibung=" + KurzBeschreibung + "/n/tBeschreibung=" + Beschreibung;
+		StringBuilder actiune = new StringBuilder();
+		actiune.append("Short Description: "+ KurzBeschreibung);
+		actiune.append(System.getProperty("line.separator"));
+		actiune.append("	Lang Description: " + Beschreibung);
+		
+		return actiune.toString();
 	}
 }
