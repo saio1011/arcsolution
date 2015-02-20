@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.JList;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
+import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -187,6 +188,7 @@ public class MainUI extends JFrame {
 	private JPanel payBillingUI;
 	private JLabel lblTitlePayBillingUI;
 	private JButton btnCancelPayBillingUI;
+	private JScrollPane scrollPanelFacturiNeincasate;
 	private JComboBox comboBoxTypPayBillingUI;
 	private JComboBox comboBoxTagFacturaBillingUI;
 	private JComboBox comboBoxJahresMonatBillingUI;
@@ -206,8 +208,9 @@ public class MainUI extends JFrame {
 	String[] searchKundeElement = {"Name", "Cui"};
 	String[] statusDebitorElement = {"Activ", "Inactiv"};
 	String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
-	String[] spalten = {"Nr Factura", "Suma Factura", "Data Factura"};
+	String[] spalten = {"Nr Factura", "Data Factura", "Suma Factura", "Rest Plata", "Status"};
 	String[][] data = new String[0][0];
+	String statusFacturaOpen = "Open";
 	
 	
 	private JTextField txtFldKurzDescActiuneUI;
@@ -1129,7 +1132,7 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
 				DBverbindung.dbconnect();
-				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb());
+				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
 				DBverbindung.dbdisconect();
 				listResultsInDbBillingMainUI.setListData(billings.toArray());
 			}
@@ -1216,16 +1219,21 @@ public class MainUI extends JFrame {
 				ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
 				
 				DBverbindung.dbconnect();
-				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb());
+				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
 				
-				data = new String[billings.size()][3];
+				data = new String[billings.size()][5];
 				for(int row = 0; row < billings.size(); row ++){
 					Billingdomain billing = billings.get(row);
-					data[row] = new String[3];
+					data[row] = new String[5];
 					data[row][0] = billing.getNrFactura();
-					data[row][1] = String.valueOf(billing.getSumaFactura());
-					data[row][2] = String.valueOf(billing.getDataFactura()); 
+					data[row][1] = String.valueOf(billing.getDataFactura()); 
+					data[row][2] = String.valueOf(billing.getSumaFactura());
+					data[row][3] = String.valueOf(billing.getRestPlata());
+					data[row][4] = String.valueOf(billing.getStatus());
 				}
+				tableFacturiNeincasate = new JTable(data, spalten);
+				tableFacturiNeincasate.setEnabled(false);
+				scrollPanelFacturiNeincasate.setViewportView(tableFacturiNeincasate);
 	
 				DBverbindung.dbdisconect();
 			}
@@ -1421,7 +1429,7 @@ public class MainUI extends JFrame {
 				
 				//refresh entry list if update was successfully
 				if(updateFlag){
-					ArrayList<Billingdomain> billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb());
+					ArrayList<Billingdomain> billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
 					listResultsInDbBillingMainUI.setListData(billings.toArray());
 				}
 				DBverbindung.dbdisconect();
@@ -1481,11 +1489,11 @@ public class MainUI extends JFrame {
 		lblFacturiNeincasateBillingUI.setBounds(49, 102, 139, 16);
 		payBillingUI.add(lblFacturiNeincasateBillingUI);
 		
-		JScrollPane scrollPanelFacturiNeincasate = new JScrollPane();
-		scrollPanelFacturiNeincasate.setBounds(49, 130, 795, 237);
+		scrollPanelFacturiNeincasate = new JScrollPane();
+		scrollPanelFacturiNeincasate.setBounds(49, 131, 795, 237);
 		payBillingUI.add(scrollPanelFacturiNeincasate);
 		
-		tableFacturiNeincasate = new JTable(data, spalten);
+//		tableFacturiNeincasate = new JTable(data, spalten);
 		scrollPanelFacturiNeincasate.setViewportView(tableFacturiNeincasate);
 		
 		txtFldSumaAchitata = new JTextField();
@@ -1494,6 +1502,41 @@ public class MainUI extends JFrame {
 		txtFldSumaAchitata.setColumns(10);
 		
 		JButton btnSalveazaPayBillingUI = new JButton("Salveaza");
+		btnSalveazaPayBillingUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//TODO successive or target billing?
+				Double sumaDePlata = Double.valueOf(txtFldSumaAchitata.getText());
+				if(sumaDePlata > 0.0){
+					
+					//show confirmation dialog 
+					Object[] options = {"Confirma", "Anuleaza"};
+					int n = JOptionPane.showOptionDialog(null,
+						    "Esti sigur ca vrei sa platesti: '"+sumaDePlata.toString() + "' RON?",
+						    "Confirmare Plata",
+						    JOptionPane.YES_NO_OPTION,
+						    JOptionPane.QUESTION_MESSAGE,
+						    null,
+						    options,
+						    options[1]);
+					//n = 1 -> cancel
+					//n = 0 -> confirm
+					//n = -1 -> frame close option
+					
+					if(n == 1 || n == -1){
+//						return;
+					}else if(n == 0){
+						DBverbindung.dbconnect();
+						int result = bs.payBillingSuccessive(selectedKunde.getId(), selectedDebtor.getIdDeb(), sumaDePlata);
+						if(result == 1){
+							//TODO success message
+							//TODO clear amount
+							//TODO navigate back to overview and refresh list of billings 
+						}
+						DBverbindung.dbdisconect();
+					}
+				}
+			}
+		});
 		btnSalveazaPayBillingUI.setBounds(617, 519, 117, 29);
 		payBillingUI.add(btnSalveazaPayBillingUI);
 	}
