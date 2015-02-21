@@ -1389,9 +1389,9 @@ public class MainUI extends JFrame {
 		billingUI.add(txtFldSumaFacturaBillingUI);
 		txtFldSumaFacturaBillingUI.setColumns(10);
 		
-		JLabel lblDataFacturaBillingUI = new JLabel("Data Factura");
-		lblDataFacturaBillingUI.setBounds(100, 268, 146, 16);
-		billingUI.add(lblDataFacturaBillingUI);
+		JLabel lblDataEmitereFacturaBillingUI = new JLabel("Data Emitere Factura");
+		lblDataEmitereFacturaBillingUI.setBounds(100, 268, 146, 16);
+		billingUI.add(lblDataEmitereFacturaBillingUI);
 		
 		JButton btnSalveazaBillingUI = new JButton("Salveaza");
 		btnSalveazaBillingUI.addActionListener(new ActionListener() {
@@ -1496,6 +1496,14 @@ public class MainUI extends JFrame {
 		JButton btnSalveazaPayBillingUI = new JButton("Salveaza");
 		btnSalveazaPayBillingUI.setBounds(617, 519, 117, 29);
 		payBillingUI.add(btnSalveazaPayBillingUI);
+		
+		JLabel lblNewLabel = new JLabel("data incasarii");
+		lblNewLabel.setBounds(49, 81, 139, 16);
+		payBillingUI.add(lblNewLabel);
+		
+		JLabel lblDdArcSau = new JLabel("dd arc sau client");
+		lblDdArcSau.setBounds(477, 49, 117, 16);
+		payBillingUI.add(lblDdArcSau);
 	}
 	
 	//Hilfsmethoden
