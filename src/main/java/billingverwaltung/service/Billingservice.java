@@ -2,6 +2,8 @@ package billingverwaltung.service;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import billingverwaltung.domain.Billingdomain;
 import util.*;
@@ -17,22 +19,24 @@ public class Billingservice {
 	 * @param idDebitor
 	 * @return array with billings
 	 */
-	public ArrayList<Billingdomain> getFacturaByIdKundeAndIdDebitor(int idKunde, int idDebitor){
+	public ArrayList<Billingdomain> getFacturaByIdKundeAndIdDebitor(int idKunde, int idDebitor, String statusF){
 		ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
 		Statement st = null;
 		
 		try{
 			st = DBverbindung.getConn().createStatement();
-			ResultSet res = st.executeQuery("SELECT * FROM factura where idKunde = " + idKunde +" AND idDebitor = "+ idDebitor);
+			ResultSet res = st.executeQuery("SELECT * FROM factura where idKunde = " + idKunde +" AND idDebitor = "+ idDebitor+" AND Status = '"+ statusF+"'");
 			while (res.next()) {
 				int idFactura = res.getInt("ID_Factura");
 				int idClient = res.getInt("idKunde");
 				int idDebtor = res.getInt("idDebitor");
 				String nrFactura = res.getString("NrFaktura");
 				Double sumFactura = res.getDouble("SumaFaktura");
+				Double restPlata = res.getDouble("RestPlata");
 				Date dateFactura = res.getDate("DataFaktura");
+				String status = res.getString("Status");
 				
-				Billingdomain billing = new Billingdomain(idFactura, idClient, idDebtor, nrFactura, sumFactura, dateFactura);
+				Billingdomain billing = new Billingdomain(idFactura, idClient, idDebtor, nrFactura, sumFactura, restPlata, dateFactura, status);
 				billings.add(billing);
 			}
 			st.close();
@@ -47,6 +51,8 @@ public class Billingservice {
 			System.out.println(ex.getMessage());
 		}
 		
+		//sort list by date
+		Collections.sort(billings);
 		return billings;
 	}
 	
@@ -64,9 +70,9 @@ public class Billingservice {
 			connection = DBverbindung.getConn();
 			connection.setAutoCommit(false);
 			st = connection.createStatement(Statement.CLOSE_ALL_RESULTS, Statement.RETURN_GENERATED_KEYS);
-			resInsertFactura = st.executeUpdate("INSERT INTO factura (`idKunde`, `idDebitor`, `NrFaktura`, `SumaFaktura`, `DataFaktura`) VALUES "
+			resInsertFactura = st.executeUpdate("INSERT INTO factura (`idKunde`, `idDebitor`, `NrFaktura`, `SumaFaktura`, `RestPlata`, `DataFaktura`, `Status`) VALUES "
 								+ "('" + billing.getIdKunde()+"', '"+ billing.getIdDebitor()+"', '"+billing.getNrFactura()
-								+"', '"+ billing.getSumaFactura() +"', '"+billing.getDataFactura()+"')" ,Statement.RETURN_GENERATED_KEYS);
+								+"', '"+ billing.getSumaFactura() +"', '"+ billing.getSumaFactura() +"', '"+billing.getDataFactura()+"', '"+"Open"+"')" ,Statement.RETURN_GENERATED_KEYS);
 			
 //			int counter = 0;
 //			ResultSet generatedKeys = st.getGeneratedKeys();
@@ -92,6 +98,61 @@ public class Billingservice {
 		}
 		
 		return resInsertFactura;
+	}
+	
+	public int payBillingSuccessive(int idKunde, int idDebitor, Double amount){
+		java.sql.Connection connection = null;
+		Statement st = null;
+		int res = -1;
+		
+		ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
+		String statusOpen = "Open";
+		String statusClosed = "Closed";
+		Double restAmount = amount;
+		try{
+			connection = DBverbindung.getConn();
+			connection.setAutoCommit(false);
+			st = connection.createStatement();
+			
+			billings = this.getFacturaByIdKundeAndIdDebitor(idKunde, idDebitor, statusOpen);
+	
+			for(int zl = 0; zl < billings.size(); zl ++){
+				Billingdomain currentBilling = billings.get(zl); 
+				//if restAmount is > than billing amount
+				if(currentBilling.getRestPlata() <= restAmount ){	
+					res = st.executeUpdate("UPDATE factura "
+							+ "SET RestPlata = " + 0 + ", "
+							+ 	"Status = '" + statusClosed + "'"
+								+ " WHERE ID_Factura = " + currentBilling.getIdFactura() );
+					
+					restAmount = restAmount-currentBilling.getRestPlata();
+				//if restAmount > 0 but < billing amount 
+				}else if(restAmount > 0 && currentBilling.getRestPlata() > restAmount){
+					Double restPlata = currentBilling.getRestPlata() - restAmount;
+					res = st.executeUpdate("UPDATE factura "
+							+ "SET RestPlata = " + restPlata 
+								+ " WHERE ID_Factura = " + currentBilling.getIdFactura() );
+					
+					restAmount = 0.0;
+				}
+				if(res != 1){
+					throw new Exception("Pay billing failed");
+				}
+			}
+			connection.commit();
+			st.close();	
+		}catch(Exception ex){
+			try {
+				connection.rollback();
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(ex.getMessage());
+		}
+		
+		return res;
 	}
 
 }
