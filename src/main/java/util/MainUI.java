@@ -106,6 +106,7 @@ public class MainUI extends JFrame {
 	private JTextArea textAreaActiuniDebitorUI;
 	private static JLabel lblMessageBarMainUI;
 	private static JLabel lblMessageBarDebMainUI;
+	private static JLabel lblMsgBarDebitorenverwaltungUI;
 	
 	private Kundedomain selectedKunde;
 	private Debitorendomain selectedDebtor;
@@ -197,6 +198,7 @@ public class MainUI extends JFrame {
 	private JScrollPane scrollPaneListResultsInDBDebitronVerwMainUI;
 	private JList listResultsInDbBillingMainUI;
 	
+	
 	Kundeservice ks = new Kundeservice();
 	Debitorenservice ds = new Debitorenservice();
 	Billingservice bs = new Billingservice();
@@ -205,6 +207,7 @@ public class MainUI extends JFrame {
 	String None = "None";
 	String MsgBarMainUI = "MainUI";
 	String MsgBarDebUI = "DebUI";
+	String MsgBarDebVerUI = "DebVerUI";
 	String[] searchKundeElement = {"Name", "Cui"};
 	String[] statusDebitorElement = {"Activ", "Inactiv"};
 	String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
@@ -218,6 +221,11 @@ public class MainUI extends JFrame {
 	private JTextField txtFldSumaFacturaBillingUI;
 	private JTable tableFacturiNeincasate;
 	private JTextField txtFldSumaAchitata;
+	private JTextField txtFldNrFacturaPayBillingUI;
+	private JLabel lblNrFacturaPayBillingUI;
+	private JComboBox comboBoxTagDataIncasarePayBillingUI;
+	private JComboBox comboBoxJahrDataIncasarePayBillingUI;
+	private JComboBox comboBoxJahresMonatDataIncasarePayBillingUI;
 	
 	
 	/**
@@ -1214,6 +1222,8 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				debitorenverwaltungMainUI.setVisible(false);
 				payBillingUI.setVisible(true);
+				//set default typ payBilling on Cronologic
+				comboBoxTypPayBillingUI.setSelectedIndex(0);
 				
 				//
 				ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
@@ -1242,7 +1252,7 @@ public class MainUI extends JFrame {
 		debitorenverwaltungMainUI.add(btnPlatesteFacturaDebVerwMainUI);
 		
 		JSeparator separator_4 = new JSeparator();
-		separator_4.setBounds(20, 246, 852, 12);
+		separator_4.setBounds(20, 250, 852, 12);
 		debitorenverwaltungMainUI.add(separator_4);
 		
 		JSeparator separator_5 = new JSeparator();
@@ -1257,7 +1267,7 @@ public class MainUI extends JFrame {
 		separator.setBounds(21, 645, 450, 12);
 		debitorenverwaltungMainUI.add(separator);
 		
-		JLabel lblMsgBarDebitorenverwaltungUI = new JLabel("");
+		lblMsgBarDebitorenverwaltungUI = new JLabel("");
 		lblMsgBarDebitorenverwaltungUI.setBounds(21, 656, 450, 16);
 		debitorenverwaltungMainUI.add(lblMsgBarDebitorenverwaltungUI);
 	}
@@ -1463,7 +1473,7 @@ public class MainUI extends JFrame {
 		payBillingUI.setLayout(null);
 		
 		lblTitlePayBillingUI = new JLabel("Incaseaza factura");
-		lblTitlePayBillingUI.setBounds(49, 46, 218, 23);
+		lblTitlePayBillingUI.setBounds(49, 46, 139, 23);
 		payBillingUI.add(lblTitlePayBillingUI);
 		
 		btnCancelPayBillingUI = new JButton("Cancel");
@@ -1471,33 +1481,48 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				payBillingUI.setVisible(false);
 				debitorenverwaltungMainUI.setVisible(true);
+				
+				//clear text field Suma Achitata
+				txtFldSumaAchitata.setText(null);
 			}
 		});
-		btnCancelPayBillingUI.setBounds(746, 519, 117, 29);
+		btnCancelPayBillingUI.setBounds(727, 590, 117, 29);
 		payBillingUI.add(btnCancelPayBillingUI);
 		
 		String[] typPlata = { "Cronologic", "La Cerere"};
 		comboBoxTypPayBillingUI = new JComboBox(typPlata);
-		comboBoxTypPayBillingUI.setBounds(289, 45, 139, 27);
+		comboBoxTypPayBillingUI.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    	//TODO hide/show lbl and txtfld nr factura
+		        if(comboBoxTypPayBillingUI.getSelectedItem().toString().equals("Cronologic")){
+		        	lblNrFacturaPayBillingUI.setVisible(false);
+		        	txtFldNrFacturaPayBillingUI.setVisible(false);
+		        }else if(comboBoxTypPayBillingUI.getSelectedItem().toString().equals("La Cerere")){
+			        lblNrFacturaPayBillingUI.setVisible(true);
+		        	txtFldNrFacturaPayBillingUI.setVisible(true);
+		        }
+		    }
+		});
+		comboBoxTypPayBillingUI.setBounds(213, 45, 139, 27);
 		payBillingUI.add(comboBoxTypPayBillingUI);
 		
 		JLabel lblSumaAchitataBillingUI = new JLabel("Suma Achitata");
-		lblSumaAchitataBillingUI.setBounds(49, 401, 139, 16);
+		lblSumaAchitataBillingUI.setBounds(49, 541, 139, 16);
 		payBillingUI.add(lblSumaAchitataBillingUI);
 		
 		JLabel lblFacturiNeincasateBillingUI = new JLabel("Facturi neincasate");
-		lblFacturiNeincasateBillingUI.setBounds(49, 102, 139, 16);
+		lblFacturiNeincasateBillingUI.setBounds(49, 124, 139, 16);
 		payBillingUI.add(lblFacturiNeincasateBillingUI);
 		
 		scrollPanelFacturiNeincasate = new JScrollPane();
-		scrollPanelFacturiNeincasate.setBounds(49, 131, 795, 237);
+		scrollPanelFacturiNeincasate.setBounds(49, 152, 795, 365);
 		payBillingUI.add(scrollPanelFacturiNeincasate);
 		
 //		tableFacturiNeincasate = new JTable(data, spalten);
 		scrollPanelFacturiNeincasate.setViewportView(tableFacturiNeincasate);
 		
 		txtFldSumaAchitata = new JTextField();
-		txtFldSumaAchitata.setBounds(289, 395, 134, 28);
+		txtFldSumaAchitata.setBounds(213, 529, 134, 28);
 		payBillingUI.add(txtFldSumaAchitata);
 		txtFldSumaAchitata.setColumns(10);
 		
@@ -1523,30 +1548,82 @@ public class MainUI extends JFrame {
 					//n = -1 -> frame close option
 					
 					if(n == 1 || n == -1){
+						//by cancel or window close do nothing !
 //						return;
 					}else if(n == 0){
 						DBverbindung.dbconnect();
 						int result = bs.payBillingSuccessive(selectedKunde.getId(), selectedDebtor.getIdDeb(), sumaDePlata);
 						if(result == 1){
-							//TODO success message
-							//TODO clear amount
-							//TODO navigate back to overview and refresh list of billings 
+							//clear text field Suma Achitata
+							txtFldSumaAchitata.setText(null);
+
+							//navigate back to overview
+							payBillingUI.setVisible(false);
+							debitorenverwaltungMainUI.setVisible(true);
+							
+							//and refresh list of billings
+							ArrayList<Billingdomain> billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
+							listResultsInDbBillingMainUI.setListData(billings.toArray());
+							
+							// success message
+							setMessageBar("Factura a fost achitata cu succes", None, MsgBarDebVerUI);
+						}else{
+							//clear text field Suma Achitata
+							txtFldSumaAchitata.setText(null);
+							
+							//navigate back to overview
+							payBillingUI.setVisible(false);
+							debitorenverwaltungMainUI.setVisible(true);
+							
+							// error message
+							setMessageBar("Factura nu a putut fi achitata", Error, MsgBarDebVerUI);
 						}
 						DBverbindung.dbdisconect();
 					}
 				}
 			}
 		});
-		btnSalveazaPayBillingUI.setBounds(617, 519, 117, 29);
+		btnSalveazaPayBillingUI.setBounds(594, 590, 117, 29);
 		payBillingUI.add(btnSalveazaPayBillingUI);
 		
-		JLabel lblNewLabel = new JLabel("data incasarii");
-		lblNewLabel.setBounds(49, 81, 139, 16);
-		payBillingUI.add(lblNewLabel);
+		JLabel lblDataIncasarii = new JLabel("Data incasarii");
+		lblDataIncasarii.setBounds(49, 81, 123, 16);
+		payBillingUI.add(lblDataIncasarii);
 		
 		JLabel lblDdArcSau = new JLabel("dd arc sau client");
-		lblDdArcSau.setBounds(477, 49, 117, 16);
+		lblDdArcSau.setBounds(579, 49, 117, 16);
 		payBillingUI.add(lblDdArcSau);
+		
+		String[] TagenDataIncasatrii = MonatsTagen();
+		comboBoxTagDataIncasarePayBillingUI = new JComboBox(TagenDataIncasatrii);
+		comboBoxTagDataIncasarePayBillingUI.setBounds(213, 81, 89, 27);
+		payBillingUI.add(comboBoxTagDataIncasarePayBillingUI);
+		
+		String[] MonatDataIncasatrii = JahresMonats();
+		comboBoxJahrDataIncasarePayBillingUI = new JComboBox(MonatDataIncasatrii);
+		comboBoxJahrDataIncasarePayBillingUI.setBounds(314, 81, 89, 27);
+		payBillingUI.add(comboBoxJahrDataIncasarePayBillingUI);
+		
+		String[] JahrDataIncasatrii = Jahre();
+		comboBoxJahresMonatDataIncasarePayBillingUI = new JComboBox(JahrDataIncasatrii);
+		comboBoxJahresMonatDataIncasarePayBillingUI.setBounds(411, 81, 89, 27);
+		payBillingUI.add(comboBoxJahresMonatDataIncasarePayBillingUI);
+		
+		String[] locPlata = { "Arc", "Debitor"};
+		JComboBox comboBox = new JComboBox(locPlata);
+		comboBox.setBounds(364, 45, 136, 27);
+		payBillingUI.add(comboBox);
+		
+		lblNrFacturaPayBillingUI = new JLabel("Nr. Factura");
+		lblNrFacturaPayBillingUI.setBounds(49, 569, 89, 16);
+		lblNrFacturaPayBillingUI.setVisible(false);
+		payBillingUI.add(lblNrFacturaPayBillingUI);
+		
+		txtFldNrFacturaPayBillingUI = new JTextField();
+		txtFldNrFacturaPayBillingUI.setBounds(213, 563, 134, 28);
+		txtFldNrFacturaPayBillingUI.setVisible(false);
+		payBillingUI.add(txtFldNrFacturaPayBillingUI);
+		txtFldNrFacturaPayBillingUI.setColumns(10);
 	}
 	
 	//Hilfsmethoden
@@ -1679,6 +1756,9 @@ public class MainUI extends JFrame {
 			}else if(MsgBar == "DebUI"){
 				lblMessageBarDebMainUI.setText(message);
 				lblMessageBarDebMainUI.setForeground(color);
+			}else if(MsgBar == "DebVerUI" ){
+				lblMsgBarDebitorenverwaltungUI.setText(message);
+				lblMsgBarDebitorenverwaltungUI.setForeground(color);
 			}
 		}
 		
@@ -1688,6 +1768,7 @@ public class MainUI extends JFrame {
 		public static void clearMessageBar(){
 			lblMessageBarMainUI.setText(null);
 			lblMessageBarDebMainUI.setText(null);
+			lblMsgBarDebitorenverwaltungUI.setText(null);
 		}
 		
 		
