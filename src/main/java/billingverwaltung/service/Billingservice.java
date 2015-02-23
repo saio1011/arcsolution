@@ -201,6 +201,7 @@ public class Billingservice {
 		String statusOpen = "Open";
 		String statusClosed = "Closed";
 		int res = -1;
+		Double amountPlata = amount;
 		
 		try{
 			connection = DBverbindung.getConn();
@@ -210,25 +211,25 @@ public class Billingservice {
 			Billingdomain billing = this.getFacturaByIdKundeIdDebitorAndNrFactura(idKunde, idDebitor, nrFactura);
 	
 			//if amount is > than billing amount return -2
-			if(billing.getRestPlata() < amount){
+			if(billing.getRestPlata() < amountPlata){
 				return -2;
 			//if amount is == than billing
-			}else if(billing.getRestPlata() == amount){	
+			}else if(billing.getRestPlata() == amountPlata){	
 				res = st.executeUpdate("UPDATE factura "
 						+ "SET RestPlata = " + 0 + ", "
 						+ 	"Status = '" + statusClosed + "'"
-							+ " WHERE ID_Factura = " + nrFactura );
+							+ " WHERE ID_Factura = " + billing.getIdFactura() );
 		
 				//if amount > 0 but < billing amount 
-			}else if(amount > 0 && billing.getRestPlata() > amount){
+			}else if(amountPlata > 0 && billing.getRestPlata() > amountPlata){
+				Double restPlata = billing.getRestPlata() - amountPlata;
 				res = st.executeUpdate("UPDATE factura "
-						+ "SET RestPlata = " + amount 
-							+ " WHERE ID_Factura = " + nrFactura);
+						+ "SET RestPlata = " + restPlata 
+							+ " WHERE ID_Factura = " + billing.getIdFactura());
 			}
 			if(res != 1){
 				throw new Exception("Pay billing failed");
 			}
-		}
 			connection.commit();
 			st.close();	
 		}catch(Exception ex){

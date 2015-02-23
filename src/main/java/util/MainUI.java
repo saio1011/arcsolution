@@ -1638,6 +1638,9 @@ public class MainUI extends JFrame {
 								
 								// success message
 								setMessageBar("Factura a fost achitata cu succes", None, MsgBarDebVerUI);
+							}else if(result == -2){
+								// error message
+								setMessageBar("Suma introdusa de achitat este prea mare", Error, MsgBarPayBillingUI);
 							}else{
 								//clear text field Suma Achitata
 								txtFldSumaAchitata.setText(null);
