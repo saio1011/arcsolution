@@ -107,6 +107,7 @@ public class MainUI extends JFrame {
 	private static JLabel lblMessageBarMainUI;
 	private static JLabel lblMessageBarDebMainUI;
 	private static JLabel lblMsgBarDebitorenverwaltungUI;
+	private static JLabel lblMsgBarPayBillingUI;
 	
 	private Kundedomain selectedKunde;
 	private Debitorendomain selectedDebtor;
@@ -208,6 +209,7 @@ public class MainUI extends JFrame {
 	String MsgBarMainUI = "MainUI";
 	String MsgBarDebUI = "DebUI";
 	String MsgBarDebVerUI = "DebVerUI";
+	String MsgBarPayBillingUI = "PayBillingUI";
 	String[] searchKundeElement = {"Name", "Cui"};
 	String[] statusDebitorElement = {"Activ", "Inactiv"};
 	String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
@@ -1529,57 +1531,130 @@ public class MainUI extends JFrame {
 		JButton btnSalveazaPayBillingUI = new JButton("Salveaza");
 		btnSalveazaPayBillingUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO successive or target billing?
-				Double sumaDePlata = Double.valueOf(txtFldSumaAchitata.getText());
-				if(sumaDePlata > 0.0){
+				//typ pay billing - cronologic
+				if(comboBoxTypPayBillingUI.getSelectedItem().toString().equals("Cronologic")){
 					
-					//show confirmation dialog 
-					Object[] options = {"Confirma", "Anuleaza"};
-					int n = JOptionPane.showOptionDialog(null,
-						    "Esti sigur ca vrei sa platesti: '"+sumaDePlata.toString() + "' RON?",
-						    "Confirmare Plata",
-						    JOptionPane.YES_NO_OPTION,
-						    JOptionPane.QUESTION_MESSAGE,
-						    null,
-						    options,
-						    options[1]);
-					//n = 1 -> cancel
-					//n = 0 -> confirm
-					//n = -1 -> frame close option
-					
-					if(n == 1 || n == -1){
-						//by cancel or window close do nothing !
-//						return;
-					}else if(n == 0){
-						DBverbindung.dbconnect();
-						int result = bs.payBillingSuccessive(selectedKunde.getId(), selectedDebtor.getIdDeb(), sumaDePlata);
-						if(result == 1){
-							//clear text field Suma Achitata
-							txtFldSumaAchitata.setText(null);
-
-							//navigate back to overview
-							payBillingUI.setVisible(false);
-							debitorenverwaltungMainUI.setVisible(true);
-							
-							//and refresh list of billings
-							ArrayList<Billingdomain> billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
-							listResultsInDbBillingMainUI.setListData(billings.toArray());
-							
-							// success message
-							setMessageBar("Factura a fost achitata cu succes", None, MsgBarDebVerUI);
-						}else{
-							//clear text field Suma Achitata
-							txtFldSumaAchitata.setText(null);
-							
-							//navigate back to overview
-							payBillingUI.setVisible(false);
-							debitorenverwaltungMainUI.setVisible(true);
-							
-							// error message
-							setMessageBar("Factura nu a putut fi achitata", Error, MsgBarDebVerUI);
-						}
-						DBverbindung.dbdisconect();
+					if(txtFldSumaAchitata.getText().isEmpty()){
+						setMessageBar("Suma Achitata trebuie introdusa", Error, MsgBarPayBillingUI);
+						return;
 					}
+					
+					Double sumaDePlata = Double.valueOf(txtFldSumaAchitata.getText());
+					
+					if(sumaDePlata > 0.0){
+						//show confirmation dialog 
+						Object[] options = {"Confirma", "Anuleaza"};
+						int n = JOptionPane.showOptionDialog(null,
+							    "Esti sigur ca vrei sa platesti: '"+sumaDePlata.toString() + "' RON?",
+							    "Confirmare Plata",
+							    JOptionPane.YES_NO_OPTION,
+							    JOptionPane.QUESTION_MESSAGE,
+							    null,
+							    options,
+							    options[1]);
+						//n = 1 -> cancel
+						//n = 0 -> confirm
+						//n = -1 -> frame close option
+						
+						if(n == 1 || n == -1){
+							//by cancel or window close do nothing !
+	//						return;
+						}else if(n == 0){
+							DBverbindung.dbconnect();
+							int result = bs.payBillingSuccessive(selectedKunde.getId(), selectedDebtor.getIdDeb(), sumaDePlata);
+							if(result == 1){
+								//clear text field Suma Achitata
+								txtFldSumaAchitata.setText(null);
+	
+								//navigate back to overview
+								payBillingUI.setVisible(false);
+								debitorenverwaltungMainUI.setVisible(true);
+								
+								//and refresh list of billings
+								ArrayList<Billingdomain> billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
+								listResultsInDbBillingMainUI.setListData(billings.toArray());
+								
+								// success message
+								setMessageBar("Factura a fost achitata cu succes", None, MsgBarDebVerUI);
+							}else{
+								//clear text field Suma Achitata
+								txtFldSumaAchitata.setText(null);
+								
+								//navigate back to overview
+								payBillingUI.setVisible(false);
+								debitorenverwaltungMainUI.setVisible(true);
+								
+								// error message
+								setMessageBar("Factura nu a putut fi achitata", Error, MsgBarDebVerUI);
+							}
+							DBverbindung.dbdisconect();
+						}
+					}else{
+						setMessageBar("Suma Achitata trebuie sa fie mai mare decat zero", Error, MsgBarPayBillingUI);
+					}
+				}else if(comboBoxTypPayBillingUI.getSelectedItem().toString().equals("La Cerere")){
+					//typ pay billing - La cerere
+					
+					if(txtFldSumaAchitata.getText().isEmpty() || txtFldNrFacturaPayBillingUI.getText().isEmpty()){
+						setMessageBar("Suma Achitata si Nr Factura trebuie introduse", Error, MsgBarPayBillingUI);
+						return;
+					}
+					
+					Double sumaDePlata = Double.valueOf(txtFldSumaAchitata.getText());
+					String nrFactura = txtFldNrFacturaPayBillingUI.getText();
+					
+					if(sumaDePlata > 0.0){
+						//show confirmation dialog 
+						Object[] options = {"Confirma", "Anuleaza"};
+						int n = JOptionPane.showOptionDialog(null,
+							    "Esti sigur ca vrei sa platesti: '"+sumaDePlata.toString() + "' RON?",
+							    "Confirmare Plata",
+							    JOptionPane.YES_NO_OPTION,
+							    JOptionPane.QUESTION_MESSAGE,
+							    null,
+							    options,
+							    options[1]);
+						//n = 1 -> cancel
+						//n = 0 -> confirm
+						//n = -1 -> frame close option
+						
+						if(n == 1 || n == -1){
+							//by cancel or window close do nothing !
+	//						return;
+						}else if(n == 0){
+							DBverbindung.dbconnect();
+							int result = bs.payBillingLaCerere(selectedKunde.getId(), selectedDebtor.getIdDeb(), sumaDePlata, nrFactura);
+							if(result == 1){
+								//clear text field Suma Achitata
+								txtFldSumaAchitata.setText(null);
+	
+								//navigate back to overview
+								payBillingUI.setVisible(false);
+								debitorenverwaltungMainUI.setVisible(true);
+								
+								//and refresh list of billings
+								ArrayList<Billingdomain> billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
+								listResultsInDbBillingMainUI.setListData(billings.toArray());
+								
+								// success message
+								setMessageBar("Factura a fost achitata cu succes", None, MsgBarDebVerUI);
+							}else{
+								//clear text field Suma Achitata
+								txtFldSumaAchitata.setText(null);
+								
+								//navigate back to overview
+								payBillingUI.setVisible(false);
+								debitorenverwaltungMainUI.setVisible(true);
+								
+								// error message
+								setMessageBar("Factura nu a putut fi achitata", Error, MsgBarDebVerUI);
+							}
+							DBverbindung.dbdisconect();
+						}
+					}else{
+						setMessageBar("Suma Achitata trebuie sa fie mai mare decat zero", Error, MsgBarPayBillingUI);
+					}
+					
 				}
 			}
 		});
@@ -1624,6 +1699,14 @@ public class MainUI extends JFrame {
 		txtFldNrFacturaPayBillingUI.setVisible(false);
 		payBillingUI.add(txtFldNrFacturaPayBillingUI);
 		txtFldNrFacturaPayBillingUI.setColumns(10);
+		
+		JSeparator separator = new JSeparator();
+		separator.setBounds(49, 645, 450, 12);
+		payBillingUI.add(separator);
+		
+		lblMsgBarPayBillingUI = new JLabel("");
+		lblMsgBarPayBillingUI.setBounds(49, 656, 450, 16);
+		payBillingUI.add(lblMsgBarPayBillingUI);
 	}
 	
 	//Hilfsmethoden
@@ -1750,15 +1833,18 @@ public class MainUI extends JFrame {
 				(new Thread(new ParallelThread())).start();
 			}
 			
-			if(MsgBar == "MainUI"){
+			if(MsgBar.equals("MainUI")){
 				lblMessageBarMainUI.setText(message);
 				lblMessageBarMainUI.setForeground(color);
-			}else if(MsgBar == "DebUI"){
+			}else if(MsgBar.equals("DebUI")){
 				lblMessageBarDebMainUI.setText(message);
 				lblMessageBarDebMainUI.setForeground(color);
-			}else if(MsgBar == "DebVerUI" ){
+			}else if(MsgBar.equals("DebVerUI")){
 				lblMsgBarDebitorenverwaltungUI.setText(message);
 				lblMsgBarDebitorenverwaltungUI.setForeground(color);
+			}else if(MsgBar.equals("PayBillingUI")){
+				lblMsgBarPayBillingUI.setText(message);
+				lblMsgBarPayBillingUI.setForeground(color);
 			}
 		}
 		
@@ -1769,6 +1855,7 @@ public class MainUI extends JFrame {
 			lblMessageBarMainUI.setText(null);
 			lblMessageBarDebMainUI.setText(null);
 			lblMsgBarDebitorenverwaltungUI.setText(null);
+			lblMsgBarPayBillingUI.setText(null);
 		}
 		
 		

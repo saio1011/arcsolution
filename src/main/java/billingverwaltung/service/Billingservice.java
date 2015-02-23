@@ -13,6 +13,45 @@ import util.*;
  */
 public class Billingservice {
 	
+	public Billingdomain getFacturaByIdKundeIdDebitorAndNrFactura(int idKunde, int idDebitor, String nrFaktura) throws Exception{
+		ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
+		Statement st = null;
+		Billingdomain billing = null;
+		try{
+			st = DBverbindung.getConn().createStatement();
+			ResultSet res = st.executeQuery("SELECT * FROM factura where idKunde = " + idKunde +" AND idDebitor = "+ idDebitor+" AND ID_Factura = '"+ nrFaktura+"'");	
+			while (res.next()) {
+				int idFactura = res.getInt("ID_Factura");
+				int idClient = res.getInt("idKunde");
+				int idDebtor = res.getInt("idDebitor");
+				String nrFactura = res.getString("NrFaktura");
+				Double sumFactura = res.getDouble("SumaFaktura");
+				Double restPlata = res.getDouble("RestPlata");
+				Date dateFactura = res.getDate("DataFaktura");
+				String status = res.getString("Status");
+				
+				billing = new Billingdomain(idFactura, idClient, idDebtor, nrFactura, sumFactura, restPlata, dateFactura, status);
+				billings.add(billing);
+			}
+			st.close();
+				
+		}catch (Exception ex){
+			try {
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			};
+			System.out.println(ex.getMessage());
+		}
+		if(billings.size() == 0){
+			throw new Exception ("No billing fount");
+		}else if(billings.size()>1){
+			throw new Exception ("Two match billings found");
+		}
+		return billing;
+	}
+	
 	/**
 	 * get billings by idKunde and by idDebitor 
 	 * @param idKunde
@@ -139,6 +178,57 @@ public class Billingservice {
 					throw new Exception("Pay billing failed");
 				}
 			}
+			connection.commit();
+			st.close();	
+		}catch(Exception ex){
+			try {
+				connection.rollback();
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(ex.getMessage());
+		}
+		
+		return res;
+	}
+	
+	
+	public int payBillingLaCerere(int idKunde, int idDebitor, Double amount, String nrFactura){
+		java.sql.Connection connection = null;
+		Statement st = null;
+		String statusOpen = "Open";
+		String statusClosed = "Closed";
+		int res = -1;
+		
+		try{
+			connection = DBverbindung.getConn();
+			connection.setAutoCommit(false);
+			st = connection.createStatement();
+			
+			Billingdomain billing = this.getFacturaByIdKundeIdDebitorAndNrFactura(idKunde, idDebitor, nrFactura);
+	
+			//if amount is > than billing amount return -2
+			if(billing.getRestPlata() < amount){
+				return -2;
+			//if amount is == than billing
+			}else if(billing.getRestPlata() == amount){	
+				res = st.executeUpdate("UPDATE factura "
+						+ "SET RestPlata = " + 0 + ", "
+						+ 	"Status = '" + statusClosed + "'"
+							+ " WHERE ID_Factura = " + nrFactura );
+		
+				//if amount > 0 but < billing amount 
+			}else if(amount > 0 && billing.getRestPlata() > amount){
+				res = st.executeUpdate("UPDATE factura "
+						+ "SET RestPlata = " + amount 
+							+ " WHERE ID_Factura = " + nrFactura);
+			}
+			if(res != 1){
+				throw new Exception("Pay billing failed");
+			}
+		}
 			connection.commit();
 			st.close();	
 		}catch(Exception ex){
