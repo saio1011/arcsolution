@@ -44,6 +44,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -214,8 +216,11 @@ public class MainUI extends JFrame {
 	String[] statusDebitorElement = {"Activ", "Inactiv"};
 	String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
 	String[] spalten = {"Nr Factura", "Data Factura", "Suma Factura", "Rest Plata", "Status"};
+	String[] spaltenProzente = {"null-null","null-null","null-null","null-null","null-null","null-null","null-null"};
+	String[][] dataProzente = new String[0][0];
 	String[][] data = new String[0][0];
 	String statusFacturaOpen = "Open";
+	String[] statusFactura = { "Open", "Closed"};
 	
 	
 	private JTextField txtFldKurzDescActiuneUI;
@@ -228,6 +233,13 @@ public class MainUI extends JFrame {
 	private JComboBox comboBoxTagDataIncasarePayBillingUI;
 	private JComboBox comboBoxJahrDataIncasarePayBillingUI;
 	private JComboBox comboBoxJahresMonatDataIncasarePayBillingUI;
+	private JComboBox comboBoxSearchStatusFactura;
+	
+	private JPanel procenteKundeUI;
+	private JButton btnBackProcenteUI;
+	private JTable tableProcenteKundeProcenteUI;
+	private JButton btnAddLineProcenteUI;
+	private JButton btnDeleteLineProcenteUI;
 	
 	
 	/**
@@ -300,6 +312,9 @@ public class MainUI extends JFrame {
 		
 //payBillingUI
 		this.payBillingUI();
+		
+//procenteKundeUI
+		this.procenteKundeUI();
 
 	}
 	
@@ -354,7 +369,7 @@ public class MainUI extends JFrame {
 		mainUI.add(btnCreazaClient);
 		
 		scrollPaneListKundeInDB = new JScrollPane();
-		scrollPaneListKundeInDB.setBounds(21, 316, 848, 182);
+		scrollPaneListKundeInDB.setBounds(21, 316, 848, 317);
 		scrollPaneListKundeInDB.setVisible(false);
 		mainUI.add(scrollPaneListKundeInDB);
 		listKundenInDB = new JList();
@@ -517,6 +532,15 @@ public class MainUI extends JFrame {
 				kundeUI.setVisible(false);
 				frmArcSolutions.setTitle("ARC Solutions");
 				boolean updateFlag = false;
+				
+				TableColumnModel columnModelxxx = tableProcenteKundeProcenteUI.getColumnModel();
+				System.out.println(columnModelxxx.getColumnCount());
+				System.out.println(columnModelxxx.getColumn(0).getIdentifier().toString());
+				System.out.println(columnModelxxx.getColumn(1).getHeaderValue().toString());
+				System.out.println(columnModelxxx.getColumn(2).getIdentifier().toString());
+				
+				//get data table
+				System.out.println(tableProcenteKundeProcenteUI.getValueAt(0, 1));
 				
 				//save or edit/update a customer
 				if(!(txtFldDenumireClientKundeUI.getText().isEmpty() || txtFldNrCtrKundeUI.getText().isEmpty())){
@@ -683,6 +707,16 @@ public class MainUI extends JFrame {
 		txtFldNrONRCClientKundeUI.setBounds(670, 210, 200, 20);
 		kundeUI.add(txtFldNrONRCClientKundeUI);
 		txtFldNrONRCClientKundeUI.setColumns(10);
+		
+		JButton btnSchemaProcentKundeUI = new JButton("Schema Procente");
+		btnSchemaProcentKundeUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				kundeUI.setVisible(false);
+				procenteKundeUI.setVisible(true);
+			}
+		});
+		btnSchemaProcentKundeUI.setBounds(718, 353, 152, 29);
+		kundeUI.add(btnSchemaProcentKundeUI);
 	}
 	
 	/**
@@ -724,7 +758,7 @@ public class MainUI extends JFrame {
 				txtFldCautaDebitorDebMainUI.setText(null);
 			}
 		});
-		btnCancelDebMainUI.setBounds(136, 553, 167, 23);
+		btnCancelDebMainUI.setBounds(711, 601, 167, 23);
 		kundeverwaltungMainUI.add(btnCancelDebMainUI);		
 		
 		lblClientSelectatDebMainUi = new JLabel("Client Selectat");
@@ -806,7 +840,7 @@ public class MainUI extends JFrame {
 		kundeverwaltungMainUI.add(txtFldCautaDebitorDebMainUI);
 		
 		scrollPaneListDebitoriInDB = new JScrollPane();
-		scrollPaneListDebitoriInDB.setBounds(21, 316, 857, 182);
+		scrollPaneListDebitoriInDB.setBounds(21, 316, 857, 273);
 		scrollPaneListDebitoriInDB.setVisible(false);
 		kundeverwaltungMainUI.add(scrollPaneListDebitoriInDB);
 		
@@ -1141,8 +1175,9 @@ public class MainUI extends JFrame {
 		btnCautaFacturaBillingMainUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
+				String statusF = comboBoxSearchStatusFactura.getSelectedItem().toString();
 				DBverbindung.dbconnect();
-				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
+				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusF);
 				DBverbindung.dbdisconect();
 				listResultsInDbBillingMainUI.setListData(billings.toArray());
 			}
@@ -1179,10 +1214,9 @@ public class MainUI extends JFrame {
 		btnEditeazaFacturaBillingMainUI.setBounds(202, 274, 159, 29);
 		debitorenverwaltungMainUI.add(btnEditeazaFacturaBillingMainUI);
 		
-		String[] status = { "Open", "Closed"};
-		JComboBox comboBox = new JComboBox(status);
-		comboBox.setBounds(335, 96, 105, 27);
-		debitorenverwaltungMainUI.add(comboBox);
+		comboBoxSearchStatusFactura = new JComboBox(statusFactura);
+		comboBoxSearchStatusFactura.setBounds(335, 96, 105, 27);
+		debitorenverwaltungMainUI.add(comboBoxSearchStatusFactura);
 		
 		scrollPaneListResultsInDBDebitronVerwMainUI = new JScrollPane();
 		scrollPaneListResultsInDBDebitronVerwMainUI.setBounds(77, 315, 795, 273);
@@ -1204,7 +1238,7 @@ public class MainUI extends JFrame {
 				listResultsInDbBillingMainUI.setListData(getSelectedDebtor().getActiuni().toArray());
 			}
 		});
-		btnAfisazaActiuniDebVerwMainUI.setBounds(148, 218, 153, 29);
+		btnAfisazaActiuniDebVerwMainUI.setBounds(452, 177, 153, 29);
 		debitorenverwaltungMainUI.add(btnAfisazaActiuniDebVerwMainUI);
 		
 		btnAdaugaActiuneDebVerwMainUI = new JButton("Adauga Actiune");
@@ -1216,7 +1250,7 @@ public class MainUI extends JFrame {
 				
 			}
 		});
-		btnAdaugaActiuneDebVerwMainUI.setBounds(539, 274, 133, 29);
+		btnAdaugaActiuneDebVerwMainUI.setBounds(452, 136, 153, 29);
 		debitorenverwaltungMainUI.add(btnAdaugaActiuneDebVerwMainUI);
 		
 		JButton btnPlatesteFacturaDebVerwMainUI = new JButton("Achitare Factura");
@@ -1244,7 +1278,8 @@ public class MainUI extends JFrame {
 					data[row][4] = String.valueOf(billing.getStatus());
 				}
 				tableFacturiNeincasate = new JTable(data, spalten);
-				tableFacturiNeincasate.setEnabled(false);
+//				tableFacturiNeincasate.setEnabled(false);
+				tableFacturiNeincasate.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
 				scrollPanelFacturiNeincasate.setViewportView(tableFacturiNeincasate);
 	
 				DBverbindung.dbdisconect();
@@ -1644,6 +1679,7 @@ public class MainUI extends JFrame {
 							}else{
 								//clear text field Suma Achitata
 								txtFldSumaAchitata.setText(null);
+								txtFldNrFacturaPayBillingUI.setText(null);
 								
 								//navigate back to overview
 								payBillingUI.setVisible(false);
@@ -1687,7 +1723,7 @@ public class MainUI extends JFrame {
 		comboBoxJahresMonatDataIncasarePayBillingUI.setBounds(411, 81, 89, 27);
 		payBillingUI.add(comboBoxJahresMonatDataIncasarePayBillingUI);
 		
-		String[] locPlata = { "Arc", "Debitor"};
+		String[] locPlata = { "Arc", "Client"};
 		JComboBox comboBox = new JComboBox(locPlata);
 		comboBox.setBounds(364, 45, 136, 27);
 		payBillingUI.add(comboBox);
@@ -1710,6 +1746,75 @@ public class MainUI extends JFrame {
 		lblMsgBarPayBillingUI = new JLabel("");
 		lblMsgBarPayBillingUI.setBounds(49, 656, 450, 16);
 		payBillingUI.add(lblMsgBarPayBillingUI);
+		
+	}
+	
+	/**
+	 * procenteKundeUI
+	 */
+	private void procenteKundeUI(){
+		procenteKundeUI = new JPanel();
+		frmArcSolutions.getContentPane().add(procenteKundeUI, "name_1258455318487");
+		procenteKundeUI.setLayout(null);
+		
+		btnBackProcenteUI = new JButton("Back");
+		btnBackProcenteUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				procenteKundeUI.setVisible(false);
+				kundeUI.setVisible(true);
+			}
+		});
+		btnBackProcenteUI.setBounds(777, 613, 117, 29);
+		procenteKundeUI.add(btnBackProcenteUI);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(46, 120, 817, 195);
+		procenteKundeUI.add(scrollPane);
+		
+		dataProzente = new String[3][7];
+		for(int row = 0; row < 3; row ++){
+			dataProzente[row] = new String[7];
+			dataProzente[row][0] = "initial-initial";
+			dataProzente[row][1] = "0"; 
+			dataProzente[row][2] = "0";
+			dataProzente[row][3] = "0";
+			dataProzente[row][4] = "0";
+			dataProzente[row][5] = "0";
+			dataProzente[row][6] = "0";
+		}
+		
+		tableProcenteKundeProcenteUI = new JTable(new DefaultTableModel(dataProzente,spaltenProzente));
+		TableColumnModel columnModel = tableProcenteKundeProcenteUI.getColumnModel();
+	    tableProcenteKundeProcenteUI.setTableHeader(new EditableHeader(columnModel));
+	    tableProcenteKundeProcenteUI.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	    tableProcenteKundeProcenteUI.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				btnDeleteLineProcenteUI.setEnabled(true);
+			}
+		});
+		scrollPane.setViewportView(tableProcenteKundeProcenteUI);
+		
+		btnAddLineProcenteUI = new JButton("Adauga Linie Noua");
+		btnAddLineProcenteUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {		
+				DefaultTableModel model = (DefaultTableModel) tableProcenteKundeProcenteUI.getModel();
+				model.addRow(new Object[]{"initial-initial", "0", "0", "0", "0", "0","0"});
+			}
+		});
+		btnAddLineProcenteUI.setBounds(46, 79, 147, 29);
+		procenteKundeUI.add(btnAddLineProcenteUI);
+		
+		btnDeleteLineProcenteUI = new JButton("Sterge Linie");
+		btnDeleteLineProcenteUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+//				int row = tableProcenteKundeProcenteUI.getSelectedRow();
+//				if(ro)
+			}
+		});
+		btnDeleteLineProcenteUI.setEnabled(false);
+		btnDeleteLineProcenteUI.setBounds(205, 79, 147, 29);
+		procenteKundeUI.add(btnDeleteLineProcenteUI);
 	}
 	
 	//Hilfsmethoden

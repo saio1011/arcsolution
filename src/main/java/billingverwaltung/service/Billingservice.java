@@ -13,13 +13,24 @@ import util.*;
  */
 public class Billingservice {
 	
+	/**
+	 * get one billing by idkunde, iddebitor and nrfactura 
+	 * 
+	 * @param idKunde
+	 * @param idDebitor
+	 * @param nrFaktura
+	 * 
+	 * @return only one billing
+	 * 
+	 * @throws Exception "no billing found" and "to many billings fount"
+	 */
 	public Billingdomain getFacturaByIdKundeIdDebitorAndNrFactura(int idKunde, int idDebitor, String nrFaktura) throws Exception{
 		ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
 		Statement st = null;
 		Billingdomain billing = null;
 		try{
 			st = DBverbindung.getConn().createStatement();
-			ResultSet res = st.executeQuery("SELECT * FROM factura where idKunde = " + idKunde +" AND idDebitor = "+ idDebitor+" AND ID_Factura = '"+ nrFaktura+"'");	
+			ResultSet res = st.executeQuery("SELECT * FROM factura where idKunde = " + idKunde +" AND idDebitor = "+ idDebitor+" AND NrFaktura = '"+ nrFaktura+"'");	
 			while (res.next()) {
 				int idFactura = res.getInt("ID_Factura");
 				int idClient = res.getInt("idKunde");
@@ -54,6 +65,7 @@ public class Billingservice {
 	
 	/**
 	 * get billings by idKunde and by idDebitor 
+	 * 
 	 * @param idKunde
 	 * @param idDebitor
 	 * @return array with billings
@@ -97,8 +109,9 @@ public class Billingservice {
 	
 	/**
 	 * create billing 
+	 * 
 	 * @param billing
-	 * @return
+	 * @return result insert factura
 	 */
 	public int createFactura(Billingdomain billing){
 		java.sql.Connection connection = null;
@@ -139,6 +152,15 @@ public class Billingservice {
 		return resInsertFactura;
 	}
 	
+	/**
+	 * pay billing successive
+	 * 
+	 * @param idKunde
+	 * @param idDebitor
+	 * @param amount
+	 * 
+	 * @return result pay last billing (1) or -1 if pay billing fail
+	 */
 	public int payBillingSuccessive(int idKunde, int idDebitor, Double amount){
 		java.sql.Connection connection = null;
 		Statement st = null;
@@ -154,7 +176,7 @@ public class Billingservice {
 			st = connection.createStatement();
 			
 			billings = this.getFacturaByIdKundeAndIdDebitor(idKunde, idDebitor, statusOpen);
-	
+			
 			for(int zl = 0; zl < billings.size(); zl ++){
 				Billingdomain currentBilling = billings.get(zl); 
 				//if restAmount is > than billing amount
@@ -194,7 +216,16 @@ public class Billingservice {
 		return res;
 	}
 	
-	
+	/**
+	 * pay billing la cerere
+	 * 
+	 * @param idKunde
+	 * @param idDebitor
+	 * @param amount
+	 * @param nrFactura
+	 * 
+	 * @return 1 if pay billing ok, -1 if pay billing fail, 
+			-2  if 	 amount is > than billing amount*/
 	public int payBillingLaCerere(int idKunde, int idDebitor, Double amount, String nrFactura){
 		java.sql.Connection connection = null;
 		Statement st = null;
@@ -209,23 +240,24 @@ public class Billingservice {
 			st = connection.createStatement();
 			
 			Billingdomain billing = this.getFacturaByIdKundeIdDebitorAndNrFactura(idKunde, idDebitor, nrFactura);
-	
+			
 			//if amount is > than billing amount return -2
 			if(billing.getRestPlata() < amountPlata){
 				return -2;
-			//if amount is == than billing
-			}else if(billing.getRestPlata() == amountPlata){	
+				//if amount > 0 but < billing amount 
+			}else if(billing.getRestPlata() > amountPlata){
+				Double restPlata = billing.getRestPlata() - amountPlata;
+				res = st.executeUpdate("UPDATE factura "
+						+ "SET RestPlata = " + restPlata 
+							+ " WHERE ID_Factura = " + billing.getIdFactura());
+				
+			}else{	//if amount is == than billing	
 				res = st.executeUpdate("UPDATE factura "
 						+ "SET RestPlata = " + 0 + ", "
 						+ 	"Status = '" + statusClosed + "'"
 							+ " WHERE ID_Factura = " + billing.getIdFactura() );
 		
-				//if amount > 0 but < billing amount 
-			}else if(amountPlata > 0 && billing.getRestPlata() > amountPlata){
-				Double restPlata = billing.getRestPlata() - amountPlata;
-				res = st.executeUpdate("UPDATE factura "
-						+ "SET RestPlata = " + restPlata 
-							+ " WHERE ID_Factura = " + billing.getIdFactura());
+				
 			}
 			if(res != 1){
 				throw new Exception("Pay billing failed");
