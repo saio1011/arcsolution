@@ -11,11 +11,15 @@ import java.sql.Date;
 public class Billingdomain implements Comparable<Billingdomain>{
 	private int IdFactura;
 	private int IdKunde;
+	private String NameKunde;
 	private int IdDebitor;
+	private String NameDebitor;
 	private String NrFactura;
 	private Double SumaFactura;
 	private Double RestPlata;
 	private Date DataFactura;
+	private Date DataScadentaFactura;
+	private Date DataPreluareCreanta;
 	private String Status;
 	
 	/**
@@ -30,27 +34,35 @@ public class Billingdomain implements Comparable<Billingdomain>{
 	 * @param dataFactura
 	 * @param status
 	 */
-	public Billingdomain(int idFactura, int idKunde, int idDebitor,
-			String nrFactura, Double sumaFactura, Double restPlata, Date dataFactura, String status) {
+	public Billingdomain(int idFactura, int idKunde, String nameKunde, int idDebitor, String nameDebitor,
+			String nrFactura, Double sumaFactura, Double restPlata, Date dataFactura, Date dataScadentaFactura, Date dataPreluareCreanta, String status) {
 		super();
 		IdFactura = idFactura;
 		IdKunde = idKunde;
+		NameKunde = nameKunde;
 		IdDebitor = idDebitor;
+		NameDebitor = nameDebitor;
 		NrFactura = nrFactura; 
 		SumaFactura = sumaFactura;
 		RestPlata = restPlata;
 		DataFactura = dataFactura;
+		DataScadentaFactura = dataScadentaFactura;
+		DataPreluareCreanta = dataPreluareCreanta;
 		Status = status;
 	}
 
-	public Billingdomain(int idKunde, int idDebitor, String nrFactura, Double sumaFactura, Double restPlata, Date dataFactura, String status) {
+	public Billingdomain(int idKunde, String nameKunde, int idDebitor, String nameDebitor, String nrFactura, Double sumaFactura, Double restPlata, Date dataFactura, Date dataScadentaFactura, Date dataPreluareCreanta, String status) {
 		super();
 		IdKunde = idKunde;
+		NameKunde = nameKunde;
 		IdDebitor = idDebitor;
+		NameDebitor = nameDebitor;
 		NrFactura = nrFactura; 
 		SumaFactura = sumaFactura;
 		RestPlata = restPlata;
 		DataFactura = dataFactura;
+		DataScadentaFactura = dataScadentaFactura;
+		DataPreluareCreanta = dataPreluareCreanta;
 		Status = status;
 	}
 	
@@ -63,13 +75,17 @@ public class Billingdomain implements Comparable<Billingdomain>{
 	 * @param sumaFactura
 	 * @param dataFactura
 	 */
-	public Billingdomain(int idKunde, int idDebitor, String nrFactura, Double sumaFactura, Date dataFactura) {
+	public Billingdomain(int idKunde, String nameKunde, int idDebitor, String nameDebitor, String nrFactura, Double sumaFactura, Date dataFactura, Date dataScadentaFactura, Date dataPreluareCreanta) {
 		super();
 		IdKunde = idKunde;
+		NameKunde = nameKunde;
 		IdDebitor = idDebitor;
+		NameDebitor = nameDebitor;
 		NrFactura = nrFactura; 
 		SumaFactura = sumaFactura;
 		DataFactura = dataFactura;
+		DataScadentaFactura = dataScadentaFactura;
+		DataPreluareCreanta = dataPreluareCreanta;
 	}
 
 	public int getIdFactura() {
@@ -120,6 +136,14 @@ public class Billingdomain implements Comparable<Billingdomain>{
 		DataFactura = dataFactura;
 	}
 
+	public Date getDataScadentaFactura() {
+		return DataScadentaFactura;
+	}
+
+	public void setDataScadentaFactura(Date dataScadentaFactura) {
+		DataScadentaFactura = dataScadentaFactura;
+	}
+
 	public Double getRestPlata() {
 		return RestPlata;
 	}
@@ -136,14 +160,38 @@ public class Billingdomain implements Comparable<Billingdomain>{
 		Status = status;
 	}
 
+	public String getNameKunde() {
+		return NameKunde;
+	}
+
+	public void setNameKunde(String nameKunde) {
+		NameKunde = nameKunde;
+	}
+
+	public String getNameDebitor() {
+		return NameDebitor;
+	}
+
+	public void setNameDebitor(String nameDebitor) {
+		NameDebitor = nameDebitor;
+	}
+
+	public Date getDataPreluareCreanta() {
+		return DataPreluareCreanta;
+	}
+
+	public void setDataPreluareCreanta(Date dataPreluareCreanta) {
+		DataPreluareCreanta = dataPreluareCreanta;
+	}
+
 	@Override
 	public String toString() {
 		return "NrFactura: " + NrFactura + ", Suma Factura: "
-				+ SumaFactura + ", DataFactura: " + DataFactura;
+				+ SumaFactura + ", DataFactura: " + DataFactura + ", DataScadenta: " + DataScadentaFactura;
 	}
 	
 	@Override
 	public int compareTo(Billingdomain billing){
-		return getDataFactura().compareTo(billing.getDataFactura());
+		return getDataScadentaFactura().compareTo(billing.getDataScadentaFactura());
 	}
 }

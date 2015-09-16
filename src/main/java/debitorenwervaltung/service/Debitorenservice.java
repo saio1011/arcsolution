@@ -17,7 +17,7 @@ public class Debitorenservice {
 	 * @param kundeID
 	 * @return array with all debtors by idKunde
 	 */
-	public ArrayList<Debitorendomain> getAllDebitorenByKundenId(int kundeID){
+	public ArrayList<Debitorendomain> getAllDebitorenByKundenId(int kundeID, String column, String searchValue){
 		Statement st = null;
 		Statement stAdrDeb = null;
 		Statement stActiuneDeb = null;
@@ -26,7 +26,7 @@ public class Debitorenservice {
 		
 		try{
 		    st = DBverbindung.getConn().createStatement();
-			ResultSet res = st.executeQuery("SELECT * FROM debitor where IdKunde = " + kundeID); 
+			ResultSet res = st.executeQuery("SELECT * FROM debitor where IdKunde = " + kundeID + " and " + column + " like \"" + searchValue + "%\""); 
 			while (res.next()) {
 				int idDeb = res.getInt("IdDeb"); 
 				String denumireDebitor = res.getString("DenumireDebitor");

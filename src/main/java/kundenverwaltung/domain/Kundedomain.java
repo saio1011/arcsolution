@@ -16,9 +16,10 @@ public class Kundedomain {
 	private String Cui;
 	private String NrONRC;
 	private Adresa Adresa;
+	private String[][] ProzenteSchema;
 	
 	public Kundedomain(int id, String name, String nrContract, String acteAditionale,
-			String valabilitateCrt, String contactCl, String cui, String nrONRC, Adresa adresa) {
+			String valabilitateCrt, String contactCl, String cui, String nrONRC, Adresa adresa, String[][] prozenteSchema) {
 		super();
 		this.Id = id;
 		this.DenumireClient = name;
@@ -29,10 +30,11 @@ public class Kundedomain {
 		this.Cui = cui;
 		this.NrONRC = nrONRC;
 		this.Adresa = adresa;
+		this.ProzenteSchema = prozenteSchema;
 //		this.Adresa = new Adresa(adresa.getStrada(), adresa.getNummer(), adresa.getCodPostal(), adresa.getOras(), adresa.getCountry());
 	}
 	public Kundedomain(String name, String nrContract, String acteAditionale,
-			String valabilitateCrt, String contactCl, String cui, String nrONRC, Adresa adresa) {
+			String valabilitateCrt, String contactCl, String cui, String nrONRC, Adresa adresa, String[][] prozenteSchema) {
 		super();
 		this.DenumireClient = name;
 		this.NrContract = nrContract;
@@ -42,6 +44,7 @@ public class Kundedomain {
 		this.Cui = cui;
 		this.NrONRC = nrONRC;
 		this.Adresa = new Adresa(adresa.getStrada(), adresa.getNummer(), adresa.getCodPostal(), adresa.getOras(), adresa.getCountry());
+		this.ProzenteSchema = prozenteSchema;
 	}
 	
 	public String getDenumireClient() {
@@ -98,6 +101,13 @@ public class Kundedomain {
 	public void setAdresa(Adresa adresa) {
 		Adresa = adresa;
 	}
+	public String[][] getProzenteSchema() {
+		return ProzenteSchema;
+	}
+	public void setProzenteSchema(String[][] prozenteSchema) {
+		ProzenteSchema = prozenteSchema;
+	}
+	
 	@Override
 	public String toString() {
 		return "DenumireClient=" + DenumireClient

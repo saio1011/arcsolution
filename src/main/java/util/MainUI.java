@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.EventQueue;
 
 import kundenverwaltung.domain.Kundedomain;
+import kundenverwaltung.domain.Prozentedomain;
+import kundenverwaltung.domain.Prozenteheader;
+import kundenverwaltung.domain.Prozenterow;
 import kundenverwaltung.service.*;
 import debitorenwervaltung.service.*;
 import debitorenwervaltung.domain.*;
@@ -12,6 +15,7 @@ import billingverwaltung.domain.Billingdomain;
 import billingverwaltung.service.Billingservice;
 import util.*;
 
+import javax.faces.model.DataModel;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,6 +34,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.Date;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,6 +74,8 @@ import javax.xml.bind.ParseConversionEvent;
 import java.awt.ScrollPane;
 
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.JFormattedTextField;
 
 public class MainUI extends JFrame {
 
@@ -113,6 +120,7 @@ public class MainUI extends JFrame {
 	
 	private Kundedomain selectedKunde;
 	private Debitorendomain selectedDebtor;
+	private Billingdomain selectedBilling;
 	private String angeklickteButton;
 	private JButton btnCautaDebitoriDebMainUI;
 	private JButton btnCreazaDebitorDebMainUI;
@@ -141,7 +149,7 @@ public class MainUI extends JFrame {
 	private JLabel lblRezultateBillingMainUI;
 	private JButton btnEditeazaFacturaBillingMainUI;
 	private JSeparator sep1MainUI;
-	private JButton btnActiuniAziMainUI;
+	private JButton btnSituatieClientMainUI;
 	private JButton btnFacturiDePrescrisMainUI;
 	private JSeparator sep2MainUI;
 	private JComboBox comboBoxSearchMainUI;
@@ -164,7 +172,7 @@ public class MainUI extends JFrame {
 	private JTextArea textAreaContactClientKundeUI;
 	private JSeparator sep2KundeUI;
 	private JSeparator separator_2;
-	private JComboBox comboBoxCautaNumeDebMainUI;
+	private JComboBox comboBoxCautaDebDebMainUI;
 	private JButton btnReportClientKundeVerwMainUI;
 	private JSeparator separator_3;
 	private JLabel lblCUIKundeKundeUI;
@@ -197,9 +205,19 @@ public class MainUI extends JFrame {
 	private JComboBox comboBoxTagFacturaBillingUI;
 	private JComboBox comboBoxJahresMonatBillingUI;
 	private JComboBox comboBoxJahrBillingUI;
+	private JComboBox comboBoxTagScadentaBillingUI;
+	private JComboBox comboBoxMonatScadentaBillingUI;
+	private JComboBox comboBoxJahrScadentaBillingUI;
+	private JComboBox comboBoxStatusFakturaBillingUI;
+	private JComboBox comboBoxTagPreluareCreantaBillingUI;
+	private JComboBox comboBoxMonatPreluareCreantaBillingUI;
+	private JComboBox comboBoxJahrPreluareCreantaBillingUI;
+	private JLabel lblNumeDebitorBillingUI;
+	private JLabel lblNumeCreditorBillingUI;
 	private String chckBoxActiuneDebitorStatus;
 	private JScrollPane scrollPaneListResultsInDBDebitronVerwMainUI;
 	private JList listResultsInDbBillingMainUI;
+	private JLabel lblNumeDebitorActiuneUI;
 	
 	
 	Kundeservice ks = new Kundeservice();
@@ -215,8 +233,10 @@ public class MainUI extends JFrame {
 	String[] searchKundeElement = {"Name", "Cui"};
 	String[] statusDebitorElement = {"Activ", "Inactiv"};
 	String[] statusDosarDebitorElement = {"Amiabil", "In instanza", "In executare"};
-	String[] spalten = {"Nr Factura", "Data Factura", "Suma Factura", "Rest Plata", "Status"};
-	String[] spaltenProzente = {"null-null","null-null","null-null","null-null","null-null","null-null","null-null"};
+	String[] spalten = {"Nr Factura", "Data Factura", "Suma Factura", "Rest Plata", "Status", "Data Scadenta"};
+	String[] headerAlerteFacturiTable = {"Client", "Debitor", "Nr Factura", "Suma Factura", "Data Scadenta", "Data Prescriere"};
+	String[][] dataAlerteFacturiTable = new String[0][0];
+	String[] spaltenProzente = {"intervale","0","0","0","0","0","0"};
 	String[][] dataProzente = new String[0][0];
 	String[][] data = new String[0][0];
 	String statusFacturaOpen = "Open";
@@ -231,16 +251,36 @@ public class MainUI extends JFrame {
 	private JTextField txtFldNrFacturaPayBillingUI;
 	private JLabel lblNrFacturaPayBillingUI;
 	private JComboBox comboBoxTagDataIncasarePayBillingUI;
+	private JComboBox comboBoxMonatDataIncasarePayBillingUI;
 	private JComboBox comboBoxJahrDataIncasarePayBillingUI;
-	private JComboBox comboBoxJahresMonatDataIncasarePayBillingUI;
+	private JComboBox comboBoxLocPlataPayBillingUI;
 	private JComboBox comboBoxSearchStatusFactura;
+	
 	
 	private JPanel procenteKundeUI;
 	private JButton btnBackProcenteUI;
 	private JTable tableProcenteKundeProcenteUI;
 	private JButton btnAddLineProcenteUI;
 	private JButton btnDeleteLineProcenteUI;
-	
+	private JPanel alerteFacturiUI;
+	private JTable tableAlerteFacturiUI;
+	private JPanel situatieClientUI;
+	private JLabel lblSituatieGenerala;
+	private JLabel lblSituatieAnuala;
+	private JLabel lblSituatieLunara;
+	private JLabel lblCreantePreluate;
+	private JLabel lblCreanteRecuperate;
+	private JLabel lblRecuperat;
+	private JLabel lblCreantePreluateSitGenSituatieClientUI;
+	private JLabel lblCreanteRecuperateSitGenSituatieClientUI;
+	private JLabel lblProcRecuperatSitGenSituatieClientUI;
+	private JLabel lblCreantePreluateThisYearSitClientUI;
+	private JLabel lblCreantePreluateThisMonthSitClientUI;
+	private JLabel lblCreanteRecuperateThisMonthSitClientUI;
+	private JLabel lblCreanteRecuperateThisYearSitClientUI;
+	private JLabel lblDifDeRecuperatSituatieClientUI;
+	private JComboBox comboBoxJahrSituatieClientUI;
+	private JComboBox comboBoxMonatSituatieClientUI;
 	
 	/**
 	 * Launch the application.
@@ -316,6 +356,9 @@ public class MainUI extends JFrame {
 //procenteKundeUI
 		this.procenteKundeUI();
 
+//situatie client UI 
+		this.situatieClientUI();
+
 	}
 	
 	/**
@@ -350,6 +393,7 @@ public class MainUI extends JFrame {
 				listKundenInDB.setListData(allKunden.toArray());
 				btnEditeazaClient.setEnabled(false);
 				btnVerwaltungMainUI.setEnabled(false);
+				btnSituatieClientMainUI.setEnabled(false);
 			}
 		});
 		mainUI.add(btnCautaClient);
@@ -381,6 +425,7 @@ public class MainUI extends JFrame {
 			public void valueChanged(ListSelectionEvent e) {
 				btnEditeazaClient.setEnabled(true);
 				btnVerwaltungMainUI.setEnabled(true);
+				btnSituatieClientMainUI.setEnabled(true);
 			}
 		});
 		scrollPaneListKundeInDB.setViewportView(listKundenInDB);
@@ -438,6 +483,8 @@ public class MainUI extends JFrame {
 				txtFldLocalitateKundeKundeUI.setText(getSelectedCustomer().getAdresa().getOras());
 				txtFldTaraKundeKundeUI.setText(getSelectedCustomer().getAdresa().getCountry());
 				
+//				tableProcenteKundeProcenteUI.setModel();
+				
 				angeklickteButton = "btnEditeazaClient";
 				
 			}
@@ -447,14 +494,65 @@ public class MainUI extends JFrame {
 		mainUI.add(btnEditeazaClient);
 		
 		sep1MainUI = new JSeparator();
-		sep1MainUI.setBounds(19, 47, 850, 12);
+		sep1MainUI.setBounds(19, 45, 850, 12);
 		mainUI.add(sep1MainUI);
 		
-		btnActiuniAziMainUI = new JButton("Situatie Client");
-		btnActiuniAziMainUI.setBounds(21, 59, 158, 29);
-		mainUI.add(btnActiuniAziMainUI);
+		btnSituatieClientMainUI = new JButton("Situatie Client");
+		btnSituatieClientMainUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainUI.setVisible(false);
+				situatieClientUI.setVisible(true);
+				frmArcSolutions.setTitle("ARC Solutions - Situatie Client -> "+getSelectedCustomer().getDenumireClient());
+				
+				//get current date
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				Calendar cal = Calendar.getInstance();
+				String currentDateAsString = dateFormat.format(cal.getTime());
+				
+				setDataSituatieUI(currentDateAsString.substring(0, 4), currentDateAsString.substring(5, 7));
+			}
+		});
+		btnSituatieClientMainUI.setBounds(21, 59, 158, 29);
+		btnSituatieClientMainUI.setEnabled(false);
+		mainUI.add(btnSituatieClientMainUI);
 		
 		btnFacturiDePrescrisMainUI = new JButton("Alerte Facturi");
+		btnFacturiDePrescrisMainUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainUI.setVisible(false);
+				alerteFacturiUI.setVisible(true);
+				
+				//if termen prescriere = 365*3 days => ref date(60 days) = totay-1035 days
+				//get current date
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				Calendar cal = Calendar.getInstance();
+				cal.add(Calendar.DATE, -1095);
+				String dateBefore1095DaysString = dateFormat.format(cal.getTime());
+				Date dateBefore1095Days = Date.valueOf(dateBefore1095DaysString);
+				
+				ArrayList<Billingdomain> billings = new ArrayList<Billingdomain>();
+				DBverbindung.dbconnect();
+				billings = bs.getBillingsForAlerteFacturi(dateBefore1095Days);
+				DBverbindung.dbdisconect();
+				
+				dataAlerteFacturiTable = new String[billings.size()][6];
+				for(int row = 0; row < billings.size(); row ++){
+					Billingdomain billing = billings.get(row);
+					dataAlerteFacturiTable[row] = new String[6];
+					dataAlerteFacturiTable[row][0] = billing.getNameKunde();
+					dataAlerteFacturiTable[row][1] = billing.getNameDebitor(); 
+					dataAlerteFacturiTable[row][2] = billing.getNrFactura();
+					dataAlerteFacturiTable[row][3] = String.valueOf(billing.getSumaFactura());
+					dataAlerteFacturiTable[row][4] = String.valueOf(billing.getDataScadentaFactura());
+					cal.setTime(billing.getDataScadentaFactura());
+					cal.add(Calendar.DATE, 365);
+					dataAlerteFacturiTable[row][5] = dateFormat.format(cal.getTime());
+				}
+				
+				tableAlerteFacturiUI.setModel(new DefaultTableModel(dataAlerteFacturiTable, headerAlerteFacturiTable));
+				
+			}
+		});
 		btnFacturiDePrescrisMainUI.setBounds(191, 59, 158, 29);
 		mainUI.add(btnFacturiDePrescrisMainUI);
 		
@@ -533,14 +631,35 @@ public class MainUI extends JFrame {
 				frmArcSolutions.setTitle("ARC Solutions");
 				boolean updateFlag = false;
 				
-				TableColumnModel columnModelxxx = tableProcenteKundeProcenteUI.getColumnModel();
-				System.out.println(columnModelxxx.getColumnCount());
-				System.out.println(columnModelxxx.getColumn(0).getIdentifier().toString());
-				System.out.println(columnModelxxx.getColumn(1).getHeaderValue().toString());
-				System.out.println(columnModelxxx.getColumn(2).getIdentifier().toString());
+				//column model and table model
+				TableColumnModel columnModel = tableProcenteKundeProcenteUI.getColumnModel();				
+				TableModel tableModel = tableProcenteKundeProcenteUI.getModel();
+				int rowCount = tableModel.getRowCount();
+				int columnCount = tableModel.getColumnCount();
+				System.out.println("row count" + rowCount);
+				System.out.println("column count" + columnCount);
+				String[][] prozenteSchema = new String[tableModel.getRowCount()+1][7];
 				
-				//get data table
-				System.out.println(tableProcenteKundeProcenteUI.getValueAt(0, 1));
+				//insert header of table 
+				for(int zl=0; zl<columnCount; zl++){
+					prozenteSchema[0][zl] = columnModel.getColumn(zl).getHeaderValue().toString();
+				}
+				//insert body of table
+				for (int zl1=1; zl1<=rowCount; zl1++){
+					for(int zl2=0; zl2 < columnCount; zl2++){
+						prozenteSchema[zl1][zl2] = tableModel.getValueAt(zl1-1, zl2).toString();
+					}
+				}
+				
+				//first row is the header tabel row
+				for(int a = 0; a<rowCount; a++){
+					for(int b = 0; b<columnCount; b++){
+						System.out.print(prozenteSchema[a][b] +"   ");
+					}
+					System.out.println("");
+				}
+				
+				
 				
 				//save or edit/update a customer
 				if(!(txtFldDenumireClientKundeUI.getText().isEmpty() || txtFldNrCtrKundeUI.getText().isEmpty())){
@@ -549,7 +668,7 @@ public class MainUI extends JFrame {
 							txtFldPLZKundeKundeUI.getText(),txtFldLocalitateKundeKundeUI.getText(),txtFldTaraKundeKundeUI.getText());
 					Kundedomain kundeNou = new Kundedomain(txtFldDenumireClientKundeUI.getText(), txtFldNrCtrKundeUI.getText(), 
 							txtFldActeAditionaleKundeUI.getText(), comboBoxValabilitateCtrKundeUI.getSelectedItem().toString(),
-							textAreaContactClientKundeUI.getText(), txtFldCUIKundeKundeUI.getText(), txtFldNrONRCClientKundeUI.getText(), adresa);
+							textAreaContactClientKundeUI.getText(), txtFldCUIKundeKundeUI.getText(), txtFldNrONRCClientKundeUI.getText(), adresa, prozenteSchema);
 					
 					DBverbindung.dbconnect();
 					if(angeklickteButton.equals("btnCreazaClient")){
@@ -560,6 +679,9 @@ public class MainUI extends JFrame {
 						if(result == 1){
 							setMessageBar("Clientul a fost creat", None, MsgBarMainUI);
 							updateFlag = true;
+							DefaultTableModel newModel = getNewTableModel();
+							tableProcenteKundeProcenteUI.setModel(newModel);
+							prepareTableModelProzenteUI();
 						}else{
 							setMessageBar("Clientul nu a putut fi creat", Error, MsgBarMainUI);
 							updateFlag = false;
@@ -713,6 +835,34 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				kundeUI.setVisible(false);
 				procenteKundeUI.setVisible(true);
+				
+				//set schemaProzente for selected customer
+				String[][] schemaProzente = getSelectedCustomer().getProzenteSchema();
+				if(schemaProzente.length == 0){
+					DefaultTableModel newModel = getNewTableModel();
+					tableProcenteKundeProcenteUI.setModel(newModel);
+					prepareTableModelProzenteUI();
+				}else{
+					String[] header = new String[schemaProzente[0].length-2];
+					String[][] data = new String[schemaProzente.length-1][schemaProzente[0].length-2];
+					//first row is the header tabel row
+					for(int a = 0; a<schemaProzente.length; a++){
+						String [] row = new String[schemaProzente[0].length-2];
+						for(int b = 0; b<schemaProzente[0].length-2; b++){
+							System.out.print(schemaProzente[a][b] +"   ");
+							row[b] = schemaProzente[a][b+2];
+						}
+						System.out.println("");
+						if(a == 0){
+							header = row;
+						}else{
+							data[a-1] = row;
+						}
+					}
+					DefaultTableModel model = new DefaultTableModel(data, header);
+					tableProcenteKundeProcenteUI.setModel(model);
+					prepareTableModelProzenteUI();
+				}
 			}
 		});
 		btnSchemaProcentKundeUI.setBounds(718, 353, 152, 29);
@@ -768,9 +918,11 @@ public class MainUI extends JFrame {
 		btnCautaDebitoriDebMainUI = new JButton("Cauta Debitori");
 		btnCautaDebitoriDebMainUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//teste
+				String column = getColumnForSearchDebtor(comboBoxCautaDebDebMainUI.getSelectedIndex());
+				String searchValue = getSerachFieldValueForSearchDebtor(comboBoxCautaDebDebMainUI.getSelectedIndex());
+				
 				DBverbindung.dbconnect();
-				ArrayList<Debitorendomain> allDebitoren = ds.getAllDebitorenByKundenId(selectedKunde.getId());
+				ArrayList<Debitorendomain> allDebitoren = ds.getAllDebitorenByKundenId(selectedKunde.getId(), column, searchValue);
 				DBverbindung.dbdisconect();	
 				
 				listDebitorenInDbDebMainUI.setVisible(true);
@@ -792,7 +944,9 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				kundeverwaltungMainUI.setVisible(false);
 				debitorUI.setVisible(true);
-				frmArcSolutions.setTitle("ARC Solutions - Editeaza Debitor - "+getSelectedCustomer().getDenumireClient().toString());
+				frmArcSolutions.setTitle("ARC Solutions - Editeaza Debitor - " + getSelectedDebtor().getDenumireDebitor() + " (Client "+getSelectedCustomer().getDenumireClient().toString()+")");
+				lblClientDebitorUI.setText(getSelectedCustomer().getDenumireClient());
+				lblTitleDebitorUI.setText("Editeaza Debitor '"+ getSelectedDebtor().getDenumireDebitor() +"' pentru Clientul");
 				
 				txtFldDenumireDebitorDebitorUI.setText(getSelectedDebtor().getDenumireDebitor());
 				txtFldCUIDebitorDebitorUI.setText(getSelectedDebtor().getCui());
@@ -865,8 +1019,11 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				kundeverwaltungMainUI.setVisible(false);
 				debitorenverwaltungMainUI.setVisible(true);
-				frmArcSolutions.setTitle("ARC Solutions - Administreaza debitor - ");
+				frmArcSolutions.setTitle("ARC Solutions - Administreaza debitor - " +getSelectedDebtor().getDenumireDebitor());
 				
+				lblDebitorBillingMainUI.setText(getSelectedDebtor().getDenumireDebitor());
+				btnEditeazaFacturaBillingMainUI.setVisible(true);
+				btnEditeazaFacturaBillingMainUI.setEnabled(false);
 			}
 		});
 		btnAdministreazaDebMainUI.setBounds(315, 279, 167, 29);
@@ -879,9 +1036,21 @@ public class MainUI extends JFrame {
 		kundeverwaltungMainUI.add(separator_2);
 		
 		String[] searchDebitorElement = {"Nume", "CUI", "Activ", "Inactiv", "Amiabil", "In instanza", "In executare"};
-		comboBoxCautaNumeDebMainUI = new JComboBox(searchDebitorElement);
-		comboBoxCautaNumeDebMainUI.setBounds(171, 100, 117, 27);
-		kundeverwaltungMainUI.add(comboBoxCautaNumeDebMainUI);
+		comboBoxCautaDebDebMainUI = new JComboBox(searchDebitorElement);
+		comboBoxCautaDebDebMainUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int selectedIndex = comboBoxCautaDebDebMainUI.getSelectedIndex();
+				if (selectedIndex > 1){
+					txtFldCautaDebitorDebMainUI.setText(null);
+					txtFldCautaDebitorDebMainUI.setEditable(false);
+				} else {
+					txtFldCautaDebitorDebMainUI.setText(null);
+					txtFldCautaDebitorDebMainUI.setEditable(true);
+				}
+			}
+		});
+		comboBoxCautaDebDebMainUI.setBounds(171, 100, 117, 27);
+		kundeverwaltungMainUI.add(comboBoxCautaDebDebMainUI);
 		
 		btnReportClientKundeVerwMainUI = new JButton("Raport Client");
 		btnReportClientKundeVerwMainUI.setBounds(30, 49, 134, 29);
@@ -1061,7 +1230,7 @@ public class MainUI extends JFrame {
 						}
 					}
 					if(updateFlag){
-						ArrayList<Debitorendomain> allDebitoren = ds.getAllDebitorenByKundenId(selectedKunde.getId());
+						ArrayList<Debitorendomain> allDebitoren = ds.getAllDebitorenByKundenId(selectedKunde.getId(), "DenumireDebitor", "");
 						listDebitorenInDbDebMainUI.setListData(allDebitoren.toArray());
 					}
 					DBverbindung.dbdisconect();
@@ -1167,7 +1336,7 @@ public class MainUI extends JFrame {
 		lblTitleBillingMainUI.setBounds(35, 19, 171, 16);
 		debitorenverwaltungMainUI.add(lblTitleBillingMainUI);
 		
-		lblDebitorBillingMainUI = new JLabel("Nume Debitor");
+		lblDebitorBillingMainUI = new JLabel("");
 		lblDebitorBillingMainUI.setBounds(226, 19, 248, 16);
 		debitorenverwaltungMainUI.add(lblDebitorBillingMainUI);
 		
@@ -1180,6 +1349,8 @@ public class MainUI extends JFrame {
 				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusF);
 				DBverbindung.dbdisconect();
 				listResultsInDbBillingMainUI.setListData(billings.toArray());
+				btnEditeazaFacturaBillingMainUI.setVisible(true);
+				btnEditeazaFacturaBillingMainUI.setEnabled(false);
 			}
 		});
 		btnCautaFacturaBillingMainUI.setBounds(148, 95, 153, 29);
@@ -1190,6 +1361,11 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				debitorenverwaltungMainUI.setVisible(false);
 				billingUI.setVisible(true);
+				
+				lblNumeCreditorBillingUI.setText(getSelectedCustomer().getDenumireClient());
+				lblNumeDebitorBillingUI.setText(getSelectedDebtor().getDenumireDebitor());
+				
+				angeklickteButton = "btnAddBillingBillingMainUI";
 			}
 		});
 		btnAddBillingBillingMainUI.setBounds(148, 136, 153, 29);
@@ -1209,6 +1385,23 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				debitorenverwaltungMainUI.setVisible(false);
 				billingUI.setVisible(true);
+				
+				lblNumeCreditorBillingUI.setText(getSelectedCustomer().getDenumireClient());
+				lblNumeDebitorBillingUI.setText(getSelectedDebtor().getDenumireDebitor());
+				txtFldNrFacturaBillingUI.setText(getSelectedBilling().getNrFactura());
+				txtFldSumaFacturaBillingUI.setText(getSelectedBilling().getSumaFactura().toString());
+				comboBoxTagFacturaBillingUI.setSelectedItem(getSelectedBilling().getDataFactura().toString().substring(8, 10).toString());
+				comboBoxJahresMonatBillingUI.setSelectedItem(getSelectedBilling().getDataFactura().toString().substring(5, 7).toString());
+				comboBoxJahrBillingUI.setSelectedItem(getSelectedBilling().getDataFactura().toString().substring(0, 4).toString());
+				comboBoxTagScadentaBillingUI.setSelectedItem(getSelectedBilling().getDataScadentaFactura().toString().substring(8, 10).toString());
+				comboBoxMonatScadentaBillingUI.setSelectedItem(getSelectedBilling().getDataScadentaFactura().toString().substring(5, 7).toString());
+				comboBoxJahrScadentaBillingUI.setSelectedItem(getSelectedBilling().getDataScadentaFactura().toString().substring(0, 4).toString());
+				comboBoxStatusFakturaBillingUI.setSelectedItem(getSelectedBilling().getStatus().toString());
+				comboBoxTagPreluareCreantaBillingUI.setSelectedItem(getSelectedBilling().getDataPreluareCreanta().toString().substring(8,10).toString());
+				comboBoxMonatPreluareCreantaBillingUI.setSelectedItem(getSelectedBilling().getDataPreluareCreanta().toString().substring(5,7).toString());
+				comboBoxJahrPreluareCreantaBillingUI.setSelectedItem(getSelectedBilling().getDataPreluareCreanta().toString().substring(0,4).toString());
+				
+				angeklickteButton = "btnEditeazaFacturaBillingMainUI";
 			}
 		});
 		btnEditeazaFacturaBillingMainUI.setBounds(202, 274, 159, 29);
@@ -1224,6 +1417,11 @@ public class MainUI extends JFrame {
 		
 		listResultsInDbBillingMainUI = new JList();
 		listResultsInDbBillingMainUI.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listResultsInDbBillingMainUI.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				btnEditeazaFacturaBillingMainUI.setEnabled(true);
+			}
+		});
 		scrollPaneListResultsInDBDebitronVerwMainUI.setViewportView(listResultsInDbBillingMainUI);
 		
 		frmArcSolutions.getContentPane().add(debitorenverwaltungMainUI, "name_17654855574017");
@@ -1246,8 +1444,8 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				debitorenverwaltungMainUI.setVisible(false);
 				actiuneUI.setVisible(true);
-				frmArcSolutions.setTitle("ARC Solutions - Adauga Actiune - ");
-				
+				frmArcSolutions.setTitle("ARC Solutions - Adauga Actiune - Debitor -> " +getSelectedDebtor().getDenumireDebitor());
+				lblNumeDebitorActiuneUI.setText(getSelectedDebtor().getDenumireDebitor());
 			}
 		});
 		btnAdaugaActiuneDebVerwMainUI.setBounds(452, 136, 153, 29);
@@ -1267,15 +1465,16 @@ public class MainUI extends JFrame {
 				DBverbindung.dbconnect();
 				billings = bs.getFacturaByIdKundeAndIdDebitor(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), statusFacturaOpen);
 				
-				data = new String[billings.size()][5];
+				data = new String[billings.size()][6];
 				for(int row = 0; row < billings.size(); row ++){
 					Billingdomain billing = billings.get(row);
-					data[row] = new String[5];
+					data[row] = new String[6];
 					data[row][0] = billing.getNrFactura();
 					data[row][1] = String.valueOf(billing.getDataFactura()); 
 					data[row][2] = String.valueOf(billing.getSumaFactura());
 					data[row][3] = String.valueOf(billing.getRestPlata());
 					data[row][4] = String.valueOf(billing.getStatus());
+					data[row][5] = String.valueOf(billing.getDataScadentaFactura());
 				}
 				tableFacturiNeincasate = new JTable(data, spalten);
 //				tableFacturiNeincasate.setEnabled(false);
@@ -1364,7 +1563,7 @@ public class MainUI extends JFrame {
 		btnSalveazaActiuneActiuneUI.setBounds(587, 546, 117, 29);
 		actiuneUI.add(btnSalveazaActiuneActiuneUI);
 		
-		JLabel lblNumeDebitorActiuneUI = new JLabel("Nume Debitor");
+		lblNumeDebitorActiuneUI = new JLabel("Nume Debitor");
 		lblNumeDebitorActiuneUI.setBounds(263, 30, 171, 16);
 		actiuneUI.add(lblNumeDebitorActiuneUI);
 		
@@ -1414,7 +1613,7 @@ public class MainUI extends JFrame {
 		lblCreditorBillingUI.setBounds(100, 84, 178, 16);
 		billingUI.add(lblCreditorBillingUI);
 		
-		JLabel lblNumeCreditorBillingUI = new JLabel("Nume Creditor");
+		lblNumeCreditorBillingUI = new JLabel("Nume Creditor");
 		lblNumeCreditorBillingUI.setBounds(350, 84, 178, 16);
 		billingUI.add(lblNumeCreditorBillingUI);
 		
@@ -1422,7 +1621,7 @@ public class MainUI extends JFrame {
 		lblDebitorBillingUI.setBounds(100, 112, 152, 16);
 		billingUI.add(lblDebitorBillingUI);
 		
-		JLabel lblNumeDebitorBillingUI = new JLabel("Nume Debitor");
+		lblNumeDebitorBillingUI = new JLabel("Nume Debitor");
 		lblNumeDebitorBillingUI.setBounds(350, 112, 178, 16);
 		billingUI.add(lblNumeDebitorBillingUI);
 		
@@ -1458,20 +1657,41 @@ public class MainUI extends JFrame {
 				Double sumaFactura = Double.valueOf((txtFldSumaFacturaBillingUI.getText()));
 				String date = comboBoxJahrBillingUI.getSelectedItem().toString()+"-"+comboBoxJahresMonatBillingUI.getSelectedItem().toString()+"-"+comboBoxTagFacturaBillingUI.getSelectedItem().toString();
 				Date dateFactura = Date.valueOf(date);
-				Billingdomain billing = new Billingdomain(getSelectedCustomer().getId(), getSelectedDebtor().getIdDeb(), txtFldNrFacturaBillingUI.getText(), sumaFactura, dateFactura);
+				String dateScadenta = comboBoxJahrScadentaBillingUI.getSelectedItem().toString()+"-"+comboBoxMonatScadentaBillingUI.getSelectedItem().toString()+"-"+comboBoxTagScadentaBillingUI.getSelectedItem().toString();
+				Date dataScadenza = Date.valueOf(dateScadenta);
+				String datePreluareCreanta = comboBoxJahrPreluareCreantaBillingUI.getSelectedItem().toString()+"-"+comboBoxMonatPreluareCreantaBillingUI.getSelectedItem().toString()+"-"+comboBoxTagPreluareCreantaBillingUI.getSelectedItem().toString();
+				Date datePreluareCreanza = Date.valueOf(datePreluareCreanta);
+				Billingdomain billing = new Billingdomain(getSelectedCustomer().getId(), getSelectedCustomer().getDenumireClient(), getSelectedDebtor().getIdDeb(), getSelectedDebtor().getDenumireDebitor(), txtFldNrFacturaBillingUI.getText(), sumaFactura, dateFactura, dataScadenza, datePreluareCreanza);
+				
 				
 				DBverbindung.dbconnect();
-				int resultCreateBilling = bs.createFactura(billing);
-				
-				
-				//Clear billing fields if save was successfully
-				// TODO fill message bar
-				if (resultCreateBilling == 1){
-					System.out.println("Insert factura ok");
-					updateFlag = true;
-					clearBillingUI();
-				}else{
-					updateFlag = false;
+				if (angeklickteButton.equals("btnAddBillingBillingMainUI")){
+					int resultCreateBilling = bs.createFactura(billing);
+					
+					//Clear billing fields if save was successfully
+					if (resultCreateBilling == 1){
+						System.out.println("Insert factura ok");
+						setMessageBar("Factura a fost introdusa", None, MsgBarDebVerUI);
+						updateFlag = true;
+						clearBillingUI();
+					}else{
+						updateFlag = false;
+						setMessageBar("Factura a putut fi introdusa", Error, MsgBarDebVerUI);
+					}
+				}else if (angeklickteButton.equals("btnEditeazaFacturaBillingMainUI")){
+					billing.setStatus(comboBoxStatusFakturaBillingUI.getSelectedItem().toString());
+					int resultUpdateBilling = bs.updateFactura(getSelectedBilling().getIdFactura(),billing);
+					
+					//Clear billing fields if save was successfully
+					if (resultUpdateBilling == 1){
+						System.out.println("Update factura ok");
+						setMessageBar("Factura a fost modificata", None, MsgBarDebVerUI);
+						updateFlag = true;
+						clearBillingUI();
+					}else{
+						updateFlag = false;
+						setMessageBar("Factura a putut fi modificata", Error, MsgBarDebVerUI);
+					}
 				}
 				
 				//refresh entry list if update was successfully
@@ -1499,6 +1719,46 @@ public class MainUI extends JFrame {
 		comboBoxJahrBillingUI = new JComboBox(jahre);
 		comboBoxJahrBillingUI.setBounds(524, 264, 89, 27);
 		billingUI.add(comboBoxJahrBillingUI);
+		
+		JLabel lblDataScadentaFacturaBillingUI = new JLabel("Data Scadenta Factura");
+		lblDataScadentaFacturaBillingUI.setBounds(100, 296, 146, 16);
+		billingUI.add(lblDataScadentaFacturaBillingUI);
+		
+		comboBoxTagScadentaBillingUI = new JComboBox(monatsTagen);
+		comboBoxTagScadentaBillingUI.setBounds(326, 296, 89, 27);
+		billingUI.add(comboBoxTagScadentaBillingUI);
+		
+		comboBoxMonatScadentaBillingUI = new JComboBox(monats);
+		comboBoxMonatScadentaBillingUI.setBounds(423, 296, 89, 27);
+		billingUI.add(comboBoxMonatScadentaBillingUI);
+		
+		comboBoxJahrScadentaBillingUI = new JComboBox(jahre);
+		comboBoxJahrScadentaBillingUI.setBounds(524, 296, 89, 27);
+		billingUI.add(comboBoxJahrScadentaBillingUI);
+		
+		JLabel lblStatusFactura = new JLabel("Status Factura");
+		lblStatusFactura.setBounds(606, 84, 117, 16);
+		billingUI.add(lblStatusFactura);
+		
+		comboBoxStatusFakturaBillingUI = new JComboBox(statusFactura);
+		comboBoxStatusFakturaBillingUI.setBounds(735, 80, 99, 27);
+		billingUI.add(comboBoxStatusFakturaBillingUI);
+		
+		JLabel lblDataPreluareCreantaBillingUI = new JLabel("Data Preluare Creanta");
+		lblDataPreluareCreantaBillingUI.setBounds(100, 324, 146, 16);
+		billingUI.add(lblDataPreluareCreantaBillingUI);
+		
+		comboBoxTagPreluareCreantaBillingUI = new JComboBox(monatsTagen);
+		comboBoxTagPreluareCreantaBillingUI.setBounds(326, 324, 89, 27);
+		billingUI.add(comboBoxTagPreluareCreantaBillingUI);
+		
+		comboBoxMonatPreluareCreantaBillingUI = new JComboBox(monats);
+		comboBoxMonatPreluareCreantaBillingUI.setBounds(423, 324, 89, 27);
+		billingUI.add(comboBoxMonatPreluareCreantaBillingUI);
+		
+		comboBoxJahrPreluareCreantaBillingUI = new JComboBox(jahre);
+		comboBoxJahrPreluareCreantaBillingUI.setBounds(524, 324, 89, 27);
+		billingUI.add(comboBoxJahrPreluareCreantaBillingUI);
 	}
 	
 	/**
@@ -1569,12 +1829,16 @@ public class MainUI extends JFrame {
 				//typ pay billing - cronologic
 				if(comboBoxTypPayBillingUI.getSelectedItem().toString().equals("Cronologic")){
 					
-					if(txtFldSumaAchitata.getText().isEmpty()){
-						setMessageBar("Suma Achitata trebuie introdusa", Error, MsgBarPayBillingUI);
+					if(txtFldSumaAchitata.getText().isEmpty() || (comboBoxMonatDataIncasarePayBillingUI.getSelectedItem().toString().equals("An") || comboBoxJahrDataIncasarePayBillingUI.getSelectedItem().toString().equals("Luna") || comboBoxTagDataIncasarePayBillingUI.getSelectedItem().toString().equals("Zi"))){
+						setMessageBar("Suma Achitata si Data Incasarii trebuie introduse", Error, MsgBarPayBillingUI);
 						return;
 					}
 					
+					String dataIncasare = comboBoxJahrDataIncasarePayBillingUI.getSelectedItem().toString()+"-"+comboBoxMonatDataIncasarePayBillingUI.getSelectedItem().toString()+"-"+comboBoxTagDataIncasarePayBillingUI.getSelectedItem().toString();
+					Date dataIncasareFactura = Date.valueOf(dataIncasare);
+					
 					Double sumaDePlata = Double.valueOf(txtFldSumaAchitata.getText());
+					String locIncasare = comboBoxLocPlataPayBillingUI.getSelectedItem().toString();
 					
 					if(sumaDePlata > 0.0){
 						//show confirmation dialog 
@@ -1596,10 +1860,13 @@ public class MainUI extends JFrame {
 	//						return;
 						}else if(n == 0){
 							DBverbindung.dbconnect();
-							int result = bs.payBillingSuccessive(selectedKunde.getId(), selectedDebtor.getIdDeb(), sumaDePlata);
+							int result = bs.payBillingSuccessive(selectedKunde.getId(), selectedKunde.getDenumireClient(), selectedDebtor.getIdDeb(), selectedDebtor.getDenumireDebitor(), sumaDePlata, dataIncasareFactura, locIncasare);
 							if(result == 1){
 								//clear text field Suma Achitata
 								txtFldSumaAchitata.setText(null);
+								comboBoxJahrDataIncasarePayBillingUI.setSelectedItem("An");
+								comboBoxMonatDataIncasarePayBillingUI.setSelectedItem("Luna");
+								comboBoxTagDataIncasarePayBillingUI.setSelectedItem("Zi");
 	
 								//navigate back to overview
 								payBillingUI.setVisible(false);
@@ -1614,6 +1881,9 @@ public class MainUI extends JFrame {
 							}else{
 								//clear text field Suma Achitata
 								txtFldSumaAchitata.setText(null);
+								comboBoxJahrDataIncasarePayBillingUI.setSelectedItem("An");
+								comboBoxMonatDataIncasarePayBillingUI.setSelectedItem("Luna");
+								comboBoxTagDataIncasarePayBillingUI.setSelectedItem("Zi");
 								
 								//navigate back to overview
 								payBillingUI.setVisible(false);
@@ -1630,13 +1900,17 @@ public class MainUI extends JFrame {
 				}else if(comboBoxTypPayBillingUI.getSelectedItem().toString().equals("La Cerere")){
 					//typ pay billing - La cerere
 					
-					if(txtFldSumaAchitata.getText().isEmpty() || txtFldNrFacturaPayBillingUI.getText().isEmpty()){
-						setMessageBar("Suma Achitata si Nr Factura trebuie introduse", Error, MsgBarPayBillingUI);
+					if(txtFldSumaAchitata.getText().isEmpty() || txtFldNrFacturaPayBillingUI.getText().isEmpty() || (comboBoxMonatDataIncasarePayBillingUI.getSelectedItem().toString().equals("An") || comboBoxJahrDataIncasarePayBillingUI.getSelectedItem().toString().equals("Luna") || comboBoxTagDataIncasarePayBillingUI.getSelectedItem().toString().equals("Zi"))){
+						setMessageBar("Suma Achitata si Nr Factura  si Data Incasarii trebuie introduse", Error, MsgBarPayBillingUI);
 						return;
 					}
 					
+					String dataIncasare = comboBoxJahrDataIncasarePayBillingUI.getSelectedItem().toString()+"-"+comboBoxMonatDataIncasarePayBillingUI.getSelectedItem().toString()+"-"+comboBoxTagDataIncasarePayBillingUI.getSelectedItem().toString();
+					Date dataIncasareFactura = Date.valueOf(dataIncasare);
+					
 					Double sumaDePlata = Double.valueOf(txtFldSumaAchitata.getText());
 					String nrFactura = txtFldNrFacturaPayBillingUI.getText();
+					String locIncasare = comboBoxLocPlataPayBillingUI.getSelectedItem().toString();
 					
 					if(sumaDePlata > 0.0){
 						//show confirmation dialog 
@@ -1658,10 +1932,13 @@ public class MainUI extends JFrame {
 	//						return;
 						}else if(n == 0){
 							DBverbindung.dbconnect();
-							int result = bs.payBillingLaCerere(selectedKunde.getId(), selectedDebtor.getIdDeb(), sumaDePlata, nrFactura);
+							int result = bs.payBillingLaCerere(selectedKunde.getId(), selectedKunde.getDenumireClient(), selectedDebtor.getIdDeb(), selectedDebtor.getDenumireDebitor(), sumaDePlata, nrFactura, dataIncasareFactura, locIncasare);
 							if(result == 1){
 								//clear text field Suma Achitata
 								txtFldSumaAchitata.setText(null);
+								comboBoxJahrDataIncasarePayBillingUI.setSelectedItem("An");
+								comboBoxMonatDataIncasarePayBillingUI.setSelectedItem("Luna");
+								comboBoxTagDataIncasarePayBillingUI.setSelectedItem("Zi");
 	
 								//navigate back to overview
 								payBillingUI.setVisible(false);
@@ -1680,6 +1957,9 @@ public class MainUI extends JFrame {
 								//clear text field Suma Achitata
 								txtFldSumaAchitata.setText(null);
 								txtFldNrFacturaPayBillingUI.setText(null);
+								comboBoxJahrDataIncasarePayBillingUI.setSelectedItem("An");
+								comboBoxMonatDataIncasarePayBillingUI.setSelectedItem("Luna");
+								comboBoxTagDataIncasarePayBillingUI.setSelectedItem("Zi");
 								
 								//navigate back to overview
 								payBillingUI.setVisible(false);
@@ -1704,29 +1984,25 @@ public class MainUI extends JFrame {
 		lblDataIncasarii.setBounds(49, 81, 123, 16);
 		payBillingUI.add(lblDataIncasarii);
 		
-		JLabel lblDdArcSau = new JLabel("dd arc sau client");
-		lblDdArcSau.setBounds(579, 49, 117, 16);
-		payBillingUI.add(lblDdArcSau);
-		
 		String[] TagenDataIncasatrii = MonatsTagen();
 		comboBoxTagDataIncasarePayBillingUI = new JComboBox(TagenDataIncasatrii);
 		comboBoxTagDataIncasarePayBillingUI.setBounds(213, 81, 89, 27);
 		payBillingUI.add(comboBoxTagDataIncasarePayBillingUI);
 		
+		String[] JahrDataIncasatrii = Jahre();
 		String[] MonatDataIncasatrii = JahresMonats();
-		comboBoxJahrDataIncasarePayBillingUI = new JComboBox(MonatDataIncasatrii);
-		comboBoxJahrDataIncasarePayBillingUI.setBounds(314, 81, 89, 27);
+		comboBoxMonatDataIncasarePayBillingUI = new JComboBox(MonatDataIncasatrii);
+		comboBoxMonatDataIncasarePayBillingUI.setBounds(314, 81, 89, 27);
+		payBillingUI.add(comboBoxMonatDataIncasarePayBillingUI);
+		
+		comboBoxJahrDataIncasarePayBillingUI = new JComboBox(JahrDataIncasatrii);
+		comboBoxJahrDataIncasarePayBillingUI.setBounds(411, 81, 89, 27);
 		payBillingUI.add(comboBoxJahrDataIncasarePayBillingUI);
 		
-		String[] JahrDataIncasatrii = Jahre();
-		comboBoxJahresMonatDataIncasarePayBillingUI = new JComboBox(JahrDataIncasatrii);
-		comboBoxJahresMonatDataIncasarePayBillingUI.setBounds(411, 81, 89, 27);
-		payBillingUI.add(comboBoxJahresMonatDataIncasarePayBillingUI);
-		
 		String[] locPlata = { "Arc", "Client"};
-		JComboBox comboBox = new JComboBox(locPlata);
-		comboBox.setBounds(364, 45, 136, 27);
-		payBillingUI.add(comboBox);
+		comboBoxLocPlataPayBillingUI = new JComboBox(locPlata);
+		comboBoxLocPlataPayBillingUI.setBounds(364, 45, 136, 27);
+		payBillingUI.add(comboBoxLocPlataPayBillingUI);
 		
 		lblNrFacturaPayBillingUI = new JLabel("Nr. Factura");
 		lblNrFacturaPayBillingUI.setBounds(49, 569, 89, 16);
@@ -1771,35 +2047,16 @@ public class MainUI extends JFrame {
 		scrollPane.setBounds(46, 120, 817, 195);
 		procenteKundeUI.add(scrollPane);
 		
-		dataProzente = new String[3][7];
-		for(int row = 0; row < 3; row ++){
-			dataProzente[row] = new String[7];
-			dataProzente[row][0] = "initial-initial";
-			dataProzente[row][1] = "0"; 
-			dataProzente[row][2] = "0";
-			dataProzente[row][3] = "0";
-			dataProzente[row][4] = "0";
-			dataProzente[row][5] = "0";
-			dataProzente[row][6] = "0";
-		}
-		
-		tableProcenteKundeProcenteUI = new JTable(new DefaultTableModel(dataProzente,spaltenProzente));
-		TableColumnModel columnModel = tableProcenteKundeProcenteUI.getColumnModel();
-	    tableProcenteKundeProcenteUI.setTableHeader(new EditableHeader(columnModel));
-	    tableProcenteKundeProcenteUI.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	    tableProcenteKundeProcenteUI.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				btnDeleteLineProcenteUI.setEnabled(true);
-			}
-		});
+		DefaultTableModel newModel = this.getNewTableModel();		
+		tableProcenteKundeProcenteUI = new JTable(newModel);
+		prepareTableModelProzenteUI();
 		scrollPane.setViewportView(tableProcenteKundeProcenteUI);
 		
 		btnAddLineProcenteUI = new JButton("Adauga Linie Noua");
 		btnAddLineProcenteUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {		
 				DefaultTableModel model = (DefaultTableModel) tableProcenteKundeProcenteUI.getModel();
-				model.addRow(new Object[]{"initial-initial", "0", "0", "0", "0", "0","0"});
+				model.addRow(new Object[]{"intervale zile", "0", "0", "0", "0", "0","0"});
 			}
 		});
 		btnAddLineProcenteUI.setBounds(46, 79, 147, 29);
@@ -1808,13 +2065,167 @@ public class MainUI extends JFrame {
 		btnDeleteLineProcenteUI = new JButton("Sterge Linie");
 		btnDeleteLineProcenteUI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				int row = tableProcenteKundeProcenteUI.getSelectedRow();
-//				if(ro)
+				int row = tableProcenteKundeProcenteUI.getSelectedRow();
+				System.out.println(row);
+				DefaultTableModel model = (DefaultTableModel) tableProcenteKundeProcenteUI.getModel();
+				model.removeRow(row);
 			}
 		});
 		btnDeleteLineProcenteUI.setEnabled(false);
 		btnDeleteLineProcenteUI.setBounds(205, 79, 147, 29);
 		procenteKundeUI.add(btnDeleteLineProcenteUI);
+		
+		alerteFacturiUI = new JPanel();
+		frmArcSolutions.getContentPane().add(alerteFacturiUI, "name_3137812474999");
+		alerteFacturiUI.setLayout(null);
+		
+		JButton btnCancelAlerteFacturiUI = new JButton("Cancel");
+		btnCancelAlerteFacturiUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				alerteFacturiUI.setVisible(false);
+				mainUI.setVisible(true);
+			}
+		});
+		btnCancelAlerteFacturiUI.setBounds(764, 620, 117, 29);
+		alerteFacturiUI.add(btnCancelAlerteFacturiUI);
+		
+		JSeparator separator = new JSeparator();
+		separator.setBounds(21, 37, 850, 12);
+		alerteFacturiUI.add(separator);
+		
+		JLabel label_1 = new JLabel("ARC Solutions");
+		label_1.setBounds(21, 21, 135, 14);
+		alerteFacturiUI.add(label_1);
+		
+		JScrollPane scrollPaneAlerteFacturiUI = new JScrollPane();
+		scrollPaneAlerteFacturiUI.setBounds(21, 61, 850, 547);
+		alerteFacturiUI.add(scrollPaneAlerteFacturiUI);
+		
+		tableAlerteFacturiUI = new JTable();
+		scrollPaneAlerteFacturiUI.setViewportView(tableAlerteFacturiUI);
+	}
+	
+	/**
+	 * situatie client UI
+	 */
+	public void situatieClientUI(){
+		situatieClientUI = new JPanel();
+		frmArcSolutions.getContentPane().add(situatieClientUI, "name_23962869812296");
+		situatieClientUI.setLayout(null);
+		
+		JButton btnCancelSituatieClientUI = new JButton("Cancel");
+		btnCancelSituatieClientUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				situatieClientUI.setVisible(false);
+				mainUI.setVisible(true);
+				frmArcSolutions.setTitle("ARC Solutions");
+				
+				comboBoxJahrSituatieClientUI.setSelectedItem("An");
+				comboBoxMonatSituatieClientUI.setSelectedItem("Luna");
+			}
+		});
+		btnCancelSituatieClientUI.setBounds(759, 610, 117, 29);
+		situatieClientUI.add(btnCancelSituatieClientUI);
+		
+		JLabel label_1 = new JLabel("ARC Solutions");
+		label_1.setBounds(21, 18, 135, 14);
+		situatieClientUI.add(label_1);
+		
+		JSeparator separator = new JSeparator();
+		separator.setBounds(21, 45, 850, 12);
+		situatieClientUI.add(separator);
+		
+		lblSituatieGenerala = new JLabel("Situatie Generala");
+		lblSituatieGenerala.setBounds(247, 69, 122, 16);
+		situatieClientUI.add(lblSituatieGenerala);
+		
+		lblSituatieAnuala = new JLabel("Situatie Anuala");
+		lblSituatieAnuala.setBounds(516, 69, 122, 16);
+		situatieClientUI.add(lblSituatieAnuala);
+		
+		lblSituatieLunara = new JLabel("Situatie Lunara - Anul Curent");
+		lblSituatieLunara.setBounds(680, 69, 191, 22);
+		situatieClientUI.add(lblSituatieLunara);
+		
+		lblCreantePreluate = new JLabel("Creante Preluate");
+		lblCreantePreluate.setBounds(21, 141, 122, 16);
+		situatieClientUI.add(lblCreantePreluate);
+		
+		lblCreanteRecuperate = new JLabel("Creante Recuperate");
+		lblCreanteRecuperate.setBounds(21, 169, 135, 16);
+		situatieClientUI.add(lblCreanteRecuperate);
+		
+		lblRecuperat = new JLabel("% Recuperat");
+		lblRecuperat.setBounds(21, 197, 135, 16);
+		situatieClientUI.add(lblRecuperat);
+		
+		JSeparator separator_4 = new JSeparator();
+		separator_4.setBounds(247, 97, 607, 12);
+		situatieClientUI.add(separator_4);
+		
+		lblCreantePreluateSitGenSituatieClientUI = new JLabel("");
+		lblCreantePreluateSitGenSituatieClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCreantePreluateSitGenSituatieClientUI.setBounds(247, 141, 122, 16);
+		situatieClientUI.add(lblCreantePreluateSitGenSituatieClientUI);
+		
+		lblCreanteRecuperateSitGenSituatieClientUI = new JLabel("");
+		lblCreanteRecuperateSitGenSituatieClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCreanteRecuperateSitGenSituatieClientUI.setBounds(247, 169, 122, 16);
+		situatieClientUI.add(lblCreanteRecuperateSitGenSituatieClientUI);
+		
+		lblProcRecuperatSitGenSituatieClientUI = new JLabel("");
+		lblProcRecuperatSitGenSituatieClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblProcRecuperatSitGenSituatieClientUI.setBounds(247, 197, 122, 16);
+		situatieClientUI.add(lblProcRecuperatSitGenSituatieClientUI);
+		
+		lblCreantePreluateThisYearSitClientUI = new JLabel("");
+		lblCreantePreluateThisYearSitClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCreantePreluateThisYearSitClientUI.setBounds(516, 141, 122, 16);
+		situatieClientUI.add(lblCreantePreluateThisYearSitClientUI);
+		
+		lblCreantePreluateThisMonthSitClientUI = new JLabel("");
+		lblCreantePreluateThisMonthSitClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCreantePreluateThisMonthSitClientUI.setBounds(732, 141, 122, 16);
+		situatieClientUI.add(lblCreantePreluateThisMonthSitClientUI);
+		
+		lblCreanteRecuperateThisMonthSitClientUI = new JLabel("");
+		lblCreanteRecuperateThisMonthSitClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCreanteRecuperateThisMonthSitClientUI.setBounds(732, 169, 122, 16);
+		situatieClientUI.add(lblCreanteRecuperateThisMonthSitClientUI);
+		
+		lblCreanteRecuperateThisYearSitClientUI = new JLabel("");
+		lblCreanteRecuperateThisYearSitClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCreanteRecuperateThisYearSitClientUI.setBounds(516, 169, 122, 16);
+		situatieClientUI.add(lblCreanteRecuperateThisYearSitClientUI);
+		
+		JLabel lblDiferentaDeRecuperat = new JLabel("Diferenta de Recuperat");
+		lblDiferentaDeRecuperat.setBounds(21, 225, 154, 16);
+		situatieClientUI.add(lblDiferentaDeRecuperat);
+		
+		lblDifDeRecuperatSituatieClientUI = new JLabel("");
+		lblDifDeRecuperatSituatieClientUI.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblDifDeRecuperatSituatieClientUI.setBounds(247, 225, 122, 16);
+		situatieClientUI.add(lblDifDeRecuperatSituatieClientUI);
+		
+		comboBoxJahrSituatieClientUI = new JComboBox(Jahre());
+		comboBoxJahrSituatieClientUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String selectedJahr = comboBoxJahrSituatieClientUI.getSelectedItem().toString();
+				setDataSituatieUI(selectedJahr, "");
+			}
+		});
+		comboBoxJahrSituatieClientUI.setBounds(516, 13, 95, 27);
+		situatieClientUI.add(comboBoxJahrSituatieClientUI);
+		
+		comboBoxMonatSituatieClientUI = new JComboBox(JahresMonats());
+		comboBoxMonatSituatieClientUI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String selectedMonat = comboBoxMonatSituatieClientUI.getSelectedItem().toString();
+				setDataSituatieUI("", selectedMonat);
+			}
+		});
+		comboBoxMonatSituatieClientUI.setBounds(749, 13, 95, 27);
+		situatieClientUI.add(comboBoxMonatSituatieClientUI);
 	}
 	
 	//Hilfsmethoden
@@ -1836,6 +2247,15 @@ public class MainUI extends JFrame {
 		}
 		
 		/**
+		 * get selected billing
+		 */
+		private Billingdomain getSelectedBilling(){
+			Object selectedItem = listResultsInDbBillingMainUI.getSelectedValue();
+			selectedBilling = (Billingdomain) selectedItem;
+			return selectedBilling;
+		}
+		
+		/**
 		 * clear all fields from customer UI
 		 */
 		private void clearCustomerUI(){
@@ -1851,6 +2271,7 @@ public class MainUI extends JFrame {
 			txtFldPLZKundeKundeUI.setText(null);
 			txtFldLocalitateKundeKundeUI.setText(null);
 			txtFldTaraKundeKundeUI.setText("Romania");
+//			tableProcenteKundeProcenteUI.
 		}
 		
 		/**
@@ -1877,13 +2298,23 @@ public class MainUI extends JFrame {
 			comboBoxJahrBillingUI.setSelectedItem("An");
 			comboBoxJahresMonatBillingUI.setSelectedItem("Luna");
 			comboBoxTagFacturaBillingUI.setSelectedItem("Zi");
+			comboBoxJahrScadentaBillingUI.setSelectedItem("An");
+			comboBoxMonatScadentaBillingUI.setSelectedItem("Luna");
+			comboBoxTagScadentaBillingUI.setSelectedItem("Zi");
+			comboBoxTagPreluareCreantaBillingUI.setSelectedItem("Zi");
+			comboBoxMonatPreluareCreantaBillingUI.setSelectedItem("Luna");
+			comboBoxJahrPreluareCreantaBillingUI.setSelectedItem("An");
 		}
 		
 		private String[] MonatsTagen(){
 			String[] tagen = new String[32];
 			tagen[0] = "Zi";
 			for(int zl = 1; zl <= 31; zl++){
-				tagen[zl] = "" + zl;
+				if (zl <= 9){
+					tagen[zl] = "0" + zl;
+				}else{
+					tagen[zl] = "" + zl;
+				}
 			}	
 			return tagen;
 		}
@@ -1966,7 +2397,153 @@ public class MainUI extends JFrame {
 			lblMsgBarPayBillingUI.setText(null);
 		}
 		
+		/**
+		 * get new table model
+		 *
+		 */
+		public DefaultTableModel getNewTableModel(){
+
+			dataProzente = new String[3][7];
+			for(int row = 0; row < 3; row ++){
+				dataProzente[row] = new String[7];
+				dataProzente[row][0] = "intervale zile";
+				dataProzente[row][1] = "0"; 
+				dataProzente[row][2] = "0";
+				dataProzente[row][3] = "0";
+				dataProzente[row][4] = "0";
+				dataProzente[row][5] = "0";
+				dataProzente[row][6] = "0";
+			}
+			DefaultTableModel model = new DefaultTableModel(dataProzente, spaltenProzente);
+			return model;
+		}
 		
+		/**
+		 * prepare tableModel
+		 */
+		public void prepareTableModelProzenteUI(){
+			TableColumnModel columnModel = tableProcenteKundeProcenteUI.getColumnModel();
+		    tableProcenteKundeProcenteUI.setTableHeader(new EditableHeader(columnModel));
+		    tableProcenteKundeProcenteUI.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		    tableProcenteKundeProcenteUI.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					btnDeleteLineProcenteUI.setEnabled(true);
+				}
+			});
+		}
+		
+		/**
+		 * get column for search debtor
+		 */
+		public String getColumnForSearchDebtor(int selectedIndex){
+			String column = "";
+			if(selectedIndex == 0){
+				column = "DenumireDebitor";
+			}else if (selectedIndex == 1){
+				column = "Cui";
+			}else if(selectedIndex == 2 || selectedIndex == 3){
+				column = "StatusDebitor";
+			}else if (selectedIndex == 4 || selectedIndex == 5 || selectedIndex == 6){
+				column = "StatusDosar";
+			}
+			return column;
+		}
+		
+		/**
+		 * get serach field for search debtor
+		 */
+		public String getSerachFieldValueForSearchDebtor(int selectedIndex){
+			String searchFieldValue = "";
+			switch(selectedIndex){
+				case 0 : 
+					searchFieldValue = txtFldCautaDebitorDebMainUI.getText();
+					break;
+				case 1 : 
+					searchFieldValue = txtFldCautaDebitorDebMainUI.getText();
+					break;
+				case 2 : 
+					searchFieldValue = "Activ";
+					break;
+				case 3 : 
+					searchFieldValue = "Inactiv";
+					break;
+				case 4 : 
+					searchFieldValue = "Amiabil";
+					break;
+				case 5 : 
+					searchFieldValue = "In instanza";
+					break;
+				case 6 : 
+					searchFieldValue = "In executare";
+					break;
+			}
+			return searchFieldValue;
+		}
+		
+		/**
+		 * set data for Situatie UI 
+		 */
+		public void setDataSituatieUI(String jahr, String monat){
+			
+//			//get current date
+//			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//			Calendar cal = Calendar.getInstance();
+//			String currentDateAsString = dateFormat.format(cal.getTime());
+			
+			//get all billings for this customer
+			// and also get all payed billing for this customer
+			DBverbindung.dbconnect();
+			ArrayList<Billingdomain> allBillingsForThisCustomer = bs.getAllBillingsForOneCustomer(getSelectedCustomer().getId());
+			ArrayList<Billingdomain> allPayedBillingsForThisCustomer = bs.getAllPayedBillingsForOneCustomer(getSelectedCustomer().getId());
+			DBverbindung.dbdisconect();
+			
+			Double creantePreluateTotal= 0.0;
+			Double creantePreluateThisYear = 0.0;
+			Double creantePreluateThisMonth = 0.0;
+			for(Billingdomain billing : allBillingsForThisCustomer){
+				creantePreluateTotal += billing.getSumaFactura();
+				//calculate creante preluate this year
+				if(billing.getDataPreluareCreanta().toString().substring(0, 4).equals(jahr)){
+					creantePreluateThisYear += billing.getSumaFactura();
+				}
+				//calculate creante preluate this month
+				if(billing.getDataPreluareCreanta().toString().substring(5, 7).equals(monat)){
+					creantePreluateThisMonth += billing.getSumaFactura();
+				}
+			}
+			lblCreantePreluateSitGenSituatieClientUI.setText(creantePreluateTotal.toString());
+			lblCreantePreluateThisYearSitClientUI.setText(creantePreluateThisYear.toString());
+			lblCreantePreluateThisMonthSitClientUI.setText(creantePreluateThisMonth.toString());
+			
+			Double creanteRecuperateTotal = 0.0;
+			Double creanteRecuperateThisYear = 0.0;
+			Double creanteRecuperateThisMonth = 0.0;
+			for(Billingdomain billing : allPayedBillingsForThisCustomer){
+				//restPlata is here suma platita
+				creanteRecuperateTotal += billing.getRestPlata();
+				//calculate creante incasate this year
+				//datePreluareCreanta is here data incasare
+				if(billing.getDataPreluareCreanta().toString().substring(0, 4).equals(jahr)){
+					creanteRecuperateThisYear += billing.getRestPlata();
+				}
+				//calculate creante incasate this month
+				//datePreluareCreanta is here data incasare
+				if(billing.getDataPreluareCreanta().toString().substring(5, 7).equals(monat)){
+					creanteRecuperateThisMonth += billing.getRestPlata();
+				}
+			}
+			lblCreanteRecuperateSitGenSituatieClientUI.setText(creanteRecuperateTotal.toString());
+			lblCreanteRecuperateThisYearSitClientUI.setText(creanteRecuperateThisYear.toString());
+			lblCreanteRecuperateThisMonthSitClientUI.setText(creanteRecuperateThisMonth.toString());
+			
+			//calculate % recuperat
+			Double procRecuperat = (creanteRecuperateTotal * 100)/creantePreluateTotal;
+			lblProcRecuperatSitGenSituatieClientUI.setText(new DecimalFormat("#.##").format(procRecuperat) + " %");
+			
+			Double difDeRecuperat = creantePreluateTotal- creanteRecuperateTotal;
+			lblDifDeRecuperatSituatieClientUI.setText(difDeRecuperat.toString());
+		}
 		
 		/**
 		 * keine Ahnung was das ist

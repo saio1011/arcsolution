@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.apache.bcel.generic.LNEG;
+
 import com.mysql.jdbc.Connection;
 
 import kundenverwaltung.domain.*;
@@ -22,6 +24,7 @@ public class Kundeservice {
 	public ArrayList<Kundedomain> getAllKunden(){
 		Statement st = null;
 		Statement stAdr = null;
+		Statement stProz = null;
 		ArrayList<Kundedomain> kunden = new ArrayList<Kundedomain>();
 //		DBverbindung.dbconnect();
 		try{
@@ -46,7 +49,25 @@ public class Kundeservice {
 				}
 				stAdr.close();
 				
-				Kundedomain tmp = new Kundedomain(iD, name, kontraktNr, actaditional, valabilitateCtr, contactCl, cui, nrONRC, adresa);		
+				ArrayList<ArrayList<String>> prozenteTable = new ArrayList<>();
+				stProz = DBverbindung.getConn().createStatement();
+				ResultSet resProzente = stProz.executeQuery("SELECT * FROM prozenteClient where ID_Kunde = \"" + iD + "\"");
+				int countColumns = resProzente.getMetaData().getColumnCount();
+				while(resProzente.next()){
+					ArrayList<String> row = new ArrayList<>();
+					for(int iCol = 1; iCol<= countColumns; iCol++){
+						row.add(resProzente.getObject(iCol).toString());
+					}
+					prozenteTable.add(row);
+				}
+				stProz.close();			
+				String[][] prozenteSchema = new String[prozenteTable.size()][];
+				for(int zl=0; zl<prozenteTable.size(); zl++){
+					ArrayList<String> row = prozenteTable.get(zl);
+					prozenteSchema[zl] = row.toArray(new String[row.size()]);
+				}
+				
+				Kundedomain tmp = new Kundedomain(iD, name, kontraktNr, actaditional, valabilitateCtr, contactCl, cui, nrONRC, adresa, prozenteSchema);		
 				kunden.add(tmp);
 			}
 			st.close();
@@ -74,6 +95,7 @@ public class Kundeservice {
 	public ArrayList<Kundedomain> findKundenByName(String spalte, String nameField){
 		Statement st = null;
 		Statement stAdr = null;
+		Statement stProz = null;
 		ArrayList<Kundedomain> kunden = new ArrayList<Kundedomain>();
 //		DBverbindung.dbconnect();
 		try{
@@ -97,8 +119,27 @@ public class Kundeservice {
 							resAdresa.getString("Oras"), resAdresa.getString("Country"));
 				}
 				stAdr.close();
-			
-				Kundedomain tmp = new Kundedomain(iD, name, kontraktNr, actaditional, valabilitateCtr, contactCl, cui, nrONRC, adresa);
+				
+				ArrayList<ArrayList<String>> prozenteTable = new ArrayList<>();
+				stProz = DBverbindung.getConn().createStatement();
+				ResultSet resProzente = stProz.executeQuery("SELECT * FROM prozenteClient where ID_Kunde = \"" + iD + "\"");
+				int countColumns = resProzente.getMetaData().getColumnCount();
+				while(resProzente.next()){
+					ArrayList<String> row = new ArrayList<>();
+					for(int iCol = 1; iCol<= countColumns; iCol++){
+						row.add(resProzente.getObject(iCol).toString());
+					}
+					prozenteTable.add(row);
+				}
+				stProz.close();			
+				String[][] prozenteSchema = new String[prozenteTable.size()][];
+				for(int zl=0; zl<prozenteTable.size(); zl++){
+					ArrayList<String> row = prozenteTable.get(zl);
+					prozenteSchema[zl] = row.toArray(new String[row.size()]);
+				}
+				
+				
+				Kundedomain tmp = new Kundedomain(iD, name, kontraktNr, actaditional, valabilitateCtr, contactCl, cui, nrONRC, adresa, prozenteSchema);
 				kunden.add(tmp);
 			}
 			st.close();
@@ -126,6 +167,7 @@ public class Kundeservice {
 		java.sql.Connection connection = null;
 		Statement st = null;
 		int resInsertKunde = -1;
+		int resProzente = -1;
 		int resAdr = -1;
 //		DBverbindung.dbconnect();
 		try{
@@ -147,9 +189,17 @@ public class Kundeservice {
 			
 			if(resInsertKunde == 1) {
 				if(counter == 1 && idKunde != -1){
-					resAdr = st.executeUpdate("INSERT INTO adresaCLient (`Strada`, `Nummer`, `CodPostal`, `Oras`, `Country`, `ID_Client`) VALUES "
-							+ "('" +kunde.getAdresa().getStrada()+"', '"+kunde.getAdresa().getNummer()+"', '"+ kunde.getAdresa().getCodPostal()
-							+"', '"+kunde.getAdresa().getOras()+"', '"+kunde.getAdresa().getCountry()+"', '"+idKunde+"')");
+
+					//create String Builder for schemaProzente
+					resProzente = st.executeUpdate(this.getSqlStmtInsertKunde(idKunde, kunde));
+					
+					if(resProzente == kunde.getProzenteSchema().length){
+						resAdr = st.executeUpdate("INSERT INTO adresaCLient (`Strada`, `Nummer`, `CodPostal`, `Oras`, `Country`, `ID_Client`) VALUES "
+								+ "('" +kunde.getAdresa().getStrada()+"', '"+kunde.getAdresa().getNummer()+"', '"+ kunde.getAdresa().getCodPostal()
+								+"', '"+kunde.getAdresa().getOras()+"', '"+kunde.getAdresa().getCountry()+"', '"+idKunde+"')");
+					}else{
+						throw new Exception("Create customer failed");
+					}
 				}else{
 					throw new Exception("Create customer failed");
 				}
@@ -187,6 +237,7 @@ public class Kundeservice {
 		Statement st = null;
 		int res = -1;
 		int resAdr = -1;
+		int resProzente = -1;
 		try{
 			connection = DBverbindung.getConn();
 			connection.setAutoCommit(false);
@@ -201,13 +252,25 @@ public class Kundeservice {
 										+	"NrONRC = '" + kunde.getNrONRC() + "'"
 											+ " WHERE ID = " + id);
 			if(res == 1){
-				resAdr = st.executeUpdate("UPDATE adresaClient "
-											+ "SET Strada = '" + kunde.getAdresa().getStrada() + "', "
-											+ 	"Nummer = '" + kunde.getAdresa().getNummer() + "', "
-											+	"CodPostal = '" + kunde.getAdresa().getCodPostal() + "', "
-											+	"Oras = '" + kunde.getAdresa().getOras() + "', "
-											+	"Country = '" + kunde.getAdresa().getCountry() + "'"
-												+ " WHERE ID_Client = " + id);
+				//delete all rows from prozenteClient
+				resProzente = st.executeUpdate("DELETE FROM `prozenteClient` WHERE `ID_Kunde` = " + id);
+				if (resProzente == -1){
+					throw new Exception("Update customer failed");
+				}
+				//create String Builder for schemaProzente
+				resProzente = st.executeUpdate(this.getSqlStmtInsertKunde(id, kunde));
+				
+				if(resProzente == kunde.getProzenteSchema().length){
+					resAdr = st.executeUpdate("UPDATE adresaClient "
+												+ "SET Strada = '" + kunde.getAdresa().getStrada() + "', "
+												+ 	"Nummer = '" + kunde.getAdresa().getNummer() + "', "
+												+	"CodPostal = '" + kunde.getAdresa().getCodPostal() + "', "
+												+	"Oras = '" + kunde.getAdresa().getOras() + "', "
+												+	"Country = '" + kunde.getAdresa().getCountry() + "'"
+													+ " WHERE ID_Client = " + id);
+				}else{
+					throw new Exception("Update customer failed");
+				}
 				if(resAdr != 1){
 					throw new Exception("Update customer failed");
 				}
@@ -230,5 +293,33 @@ public class Kundeservice {
 		
 //		System.out.println("update kunde mit id "+id+" aufgerufen; resAdr = " + resAdr);
 		return resAdr;
+	}
+	
+	/**
+	 * hilsfmethoden
+	 */
+	public String getSqlStmtInsertKunde(int idKunde, Kundedomain kunde){
+		StringBuilder sql =  new StringBuilder("INSERT INTO prozenteClient ( `ID_Kunde`, `isHeader`, `0`, `1`, `2`, `3`, `4`, `5`,`6`) VALUES ");
+		for (int row = 0; row< kunde.getProzenteSchema().length; row ++){
+			String isHeader  = "";
+			if(row == 0){
+				isHeader = "X";
+			}else{
+				isHeader = "";
+			}
+			sql.append("(" + idKunde + ", '" + isHeader+"'");
+			for(int column = 0; column<kunde.getProzenteSchema()[0].length; column++){
+				sql.append(", '"+kunde.getProzenteSchema()[row][column] +"'");
+			}
+			sql.append(")");
+			String endSeparator = "";
+			if(row == kunde.getProzenteSchema().length -1){
+				endSeparator = ";";
+			}else{
+				endSeparator = ",";
+			}
+			sql.append(endSeparator);
+		}
+		return sql.toString();
 	}
 }
